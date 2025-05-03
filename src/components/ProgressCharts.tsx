@@ -9,7 +9,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { format, subDays, addDays } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { DateRange } from "react-day-picker";
 
 interface ChartData {
   labels: string[];
@@ -37,6 +46,47 @@ const ProgressCharts = ({
   },
 }: ProgressChartsProps) => {
   const [timeRange, setTimeRange] = useState("week");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 7),
+    to: new Date(),
+  });
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+  // Function to handle time range change
+  const handleTimeRangeChange = (value: string) => {
+    setTimeRange(value);
+    
+    // Update date range based on selected time range
+    const today = new Date();
+    let from: Date;
+    
+    switch (value) {
+      case "week":
+        from = subDays(today, 7);
+        break;
+      case "month":
+        from = subDays(today, 30);
+        break;
+      case "year":
+        from = subDays(today, 365);
+        break;
+      default:
+        from = subDays(today, 7);
+    }
+    
+    setDateRange({ from, to: today });
+  };
+
+  // Function to handle date range selection
+  const handleDateRangeSelect = (range: DateRange | undefined) => {
+    if (range) {
+      setDateRange(range);
+      // If a custom date range is selected, set timeRange to "custom"
+      if (range.from && range.to) {
+        setTimeRange("custom");
+      }
+    }
+  };
 
   // Function to render a simple bar chart
   const renderBarChart = (data: ChartData, color: string, unit: string) => {
@@ -135,19 +185,74 @@ const ProgressCharts = ({
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Progress Tracking</h2>
         <div className="flex items-center space-x-4">
-          <Select value={timeRange} onValueChange={setTimeRange}>
+          <Select value={timeRange} onValueChange={handleTimeRangeChange}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select time range" />
+              <SelectValue placeholder="Select time range">
+                {timeRange === "custom" 
+                  ? "Custom Range" 
+                  : timeRange === "week" 
+                  ? "Last 7 days" 
+                  : timeRange === "month" 
+                  ? "Last 30 days" 
+                  : "Last 12 months"}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="week">Last 7 days</SelectItem>
               <SelectItem value="month">Last 30 days</SelectItem>
               <SelectItem value="year">Last 12 months</SelectItem>
+              {timeRange === "custom" && <SelectItem value="custom">Custom Range</SelectItem>}
             </SelectContent>
           </Select>
-          <Button variant="outline" size="icon">
-            <Calendar className="h-4 w-4" />
-          </Button>
+          
+          <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="icon"
+                className={cn(isCalendarOpen && "border-primary")}
+              >
+                <CalendarIcon className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                initialFocus
+                mode="range"
+                defaultMonth={dateRange?.from}
+                selected={dateRange}
+                onSelect={handleDateRangeSelect}
+                numberOfMonths={2}
+                footer={
+                  <div className="px-4 pt-0 pb-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-muted-foreground">
+                        {dateRange?.from ? (
+                          dateRange.to ? (
+                            <>
+                              {format(dateRange.from, "LLL dd, y")} -{" "}
+                              {format(dateRange.to, "LLL dd, y")}
+                            </>
+                          ) : (
+                            format(dateRange.from, "LLL dd, y")
+                          )
+                        ) : (
+                          "Select a date range"
+                        )}
+                      </p>
+                      <Button 
+                        size="sm" 
+                        onClick={() => setIsCalendarOpen(false)}
+                        className="ml-4"
+                      >
+                        Apply
+                      </Button>
+                    </div>
+                  </div>
+                }
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
