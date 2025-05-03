@@ -42,7 +42,7 @@ interface MealData {
   totalFat: number;
 }
 
-const MealForm = ({ open = true, onOpenChange, onSave }: MealFormProps) => {
+const MealForm = ({ open, onOpenChange, onSave }: MealFormProps) => {
   const [mealType, setMealType] = useState<string>("breakfast");
   const [foodItems, setFoodItems] = useState<FoodItem[]>([
     { name: "", calories: 0, protein: 0, carbs: 0, fat: 0 },

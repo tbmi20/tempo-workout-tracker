@@ -33,11 +33,7 @@ interface WorkoutFormProps {
   onSave?: (workout: { date: Date; exercises: Exercise[] }) => void;
 }
 
-const WorkoutForm = ({
-  open = true,
-  onOpenChange,
-  onSave,
-}: WorkoutFormProps) => {
+const WorkoutForm = ({ open, onOpenChange, onSave }: WorkoutFormProps) => {
   const [date, setDate] = useState<Date>(new Date());
   const [exercises, setExercises] = useState<Exercise[]>([
     { id: "1", name: "Bench Press", sets: 3, reps: 10, weight: 135 },
