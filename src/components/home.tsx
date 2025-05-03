@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, BarChart3, Dumbbell, Utensils } from "lucide-react";
@@ -9,34 +9,57 @@ import MealForm from "./MealForm";
 import ProgressCharts from "./ProgressCharts";
 
 const Home = () => {
+  const [workoutDialogOpen, setWorkoutDialogOpen] = useState(false);
+  const [mealDialogOpen, setMealDialogOpen] = useState(false);
+
+  const handleSaveWorkout = (workout: any) => {
+    console.log("Workout saved:", workout);
+    // Here you would typically save the workout data to your database
+  };
+
+  const handleSaveMeal = (meal: any) => {
+    console.log("Meal saved:", meal);
+    // Here you would typically save the meal data to your database
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
       <header className="mb-8">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Fitness Tracker</h1>
           <div className="flex gap-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <PlusCircle className="h-4 w-4" />
-                  <span>Add Workout</span>
-                </Button>
-              </DialogTrigger>
-              <WorkoutForm />
-            </Dialog>
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => setWorkoutDialogOpen(true)}
+            >
+              <PlusCircle className="h-4 w-4" />
+              <span>Add Workout</span>
+            </Button>
 
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <PlusCircle className="h-4 w-4" />
-                  <span>Log Meal</span>
-                </Button>
-              </DialogTrigger>
-              <MealForm />
-            </Dialog>
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => setMealDialogOpen(true)}
+            >
+              <PlusCircle className="h-4 w-4" />
+              <span>Log Meal</span>
+            </Button>
           </div>
         </div>
       </header>
+
+      <WorkoutForm 
+        open={workoutDialogOpen}
+        onOpenChange={setWorkoutDialogOpen}
+        onSave={handleSaveWorkout}
+      />
+
+      <MealForm
+        open={mealDialogOpen}
+        onOpenChange={setMealDialogOpen}
+        onSave={handleSaveMeal}
+      />
 
       <Tabs defaultValue="dashboard" className="w-full">
         <TabsList className="mb-6">
@@ -72,15 +95,13 @@ const Home = () => {
           <section>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-semibold">Workout History</h2>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="flex items-center gap-2">
-                    <PlusCircle className="h-4 w-4" />
-                    <span>Add Workout</span>
-                  </Button>
-                </DialogTrigger>
-                <WorkoutForm />
-              </Dialog>
+              <Button 
+                className="flex items-center gap-2"
+                onClick={() => setWorkoutDialogOpen(true)}
+              >
+                <PlusCircle className="h-4 w-4" />
+                <span>Add Workout</span>
+              </Button>
             </div>
             <div className="bg-card rounded-lg p-6 shadow">
               <p className="text-muted-foreground text-center py-8">
@@ -94,15 +115,13 @@ const Home = () => {
           <section>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-semibold">Meal History</h2>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="flex items-center gap-2">
-                    <PlusCircle className="h-4 w-4" />
-                    <span>Log Meal</span>
-                  </Button>
-                </DialogTrigger>
-                <MealForm />
-              </Dialog>
+              <Button 
+                className="flex items-center gap-2"
+                onClick={() => setMealDialogOpen(true)}
+              >
+                <PlusCircle className="h-4 w-4" />
+                <span>Log Meal</span>
+              </Button>
             </div>
             <div className="bg-card rounded-lg p-6 shadow">
               <p className="text-muted-foreground text-center py-8">
