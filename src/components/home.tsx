@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, BarChart3, Dumbbell, Utensils } from "lucide-react";
+import { PlusCircle, BarChart3, Dumbbell, Utensils, Calendar, Edit, Clock, Copy } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import SummaryCards from "./SummaryCards";
 import WorkoutForm from "./WorkoutForm";
 import WorkoutTemplateForm from "./WorkoutTemplateForm";
 import MealForm from "./MealForm";
 import ProgressCharts from "./ProgressCharts";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const Home = () => {
   const [workoutDialogOpen, setWorkoutDialogOpen] = useState(false);
@@ -28,6 +30,78 @@ const Home = () => {
     console.log("Meal saved:", meal);
     // Here you would typically save the meal data to your database
   };
+
+  // Sample workout history data
+  const workoutHistory = [
+    {
+      id: 1,
+      name: "Upper Body Strength",
+      date: "May 3, 2025",
+      duration: "45 min",
+      exercises: [
+        { name: "Bench Press", sets: 3, reps: 10, weight: 135 },
+        { name: "Pull-ups", sets: 4, reps: 8, weight: 0 },
+        { name: "Shoulder Press", sets: 3, reps: 12, weight: 65 },
+      ],
+    },
+    {
+      id: 2,
+      name: "Leg Day",
+      date: "May 1, 2025",
+      duration: "55 min",
+      exercises: [
+        { name: "Squats", sets: 4, reps: 8, weight: 185 },
+        { name: "Lunges", sets: 3, reps: 12, weight: 65 },
+        { name: "Leg Press", sets: 3, reps: 10, weight: 220 },
+      ],
+    },
+    {
+      id: 3,
+      name: "Core and Cardio",
+      date: "April 29, 2025",
+      duration: "35 min",
+      exercises: [
+        { name: "Plank", sets: 3, reps: 60, weight: 0 },
+        { name: "Mountain Climbers", sets: 3, reps: 30, weight: 0 },
+        { name: "Jump Rope", sets: 3, reps: 100, weight: 0 },
+      ],
+    },
+  ];
+
+  // Sample workout templates data
+  const workoutTemplates = [
+    {
+      id: 1,
+      name: "Upper Body Day",
+      exercises: [
+        { name: "Bench Press", sets: 4 },
+        { name: "Pull-ups", sets: 4 },
+        { name: "Shoulder Press", sets: 3 },
+        { name: "Bicep Curls", sets: 3 },
+        { name: "Tricep Extensions", sets: 3 },
+      ],
+    },
+    {
+      id: 2,
+      name: "Lower Body Day",
+      exercises: [
+        { name: "Squats", sets: 5 },
+        { name: "Lunges", sets: 3 },
+        { name: "Deadlift", sets: 4 },
+        { name: "Leg Press", sets: 3 },
+      ],
+    },
+    {
+      id: 3,
+      name: "Full Body Workout",
+      exercises: [
+        { name: "Push-ups", sets: 3 },
+        { name: "Pull-ups", sets: 3 },
+        { name: "Squats", sets: 3 },
+        { name: "Plank", sets: 3 },
+      ],
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -116,10 +190,41 @@ const Home = () => {
                 <span>Add Workout</span>
               </Button>
             </div>
-            <div className="bg-card rounded-lg p-6 shadow">
-              <p className="text-muted-foreground text-center py-8">
-                Your workout history will appear here
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {workoutHistory.map((workout) => (
+                <Card key={workout.id} className="overflow-hidden">
+                  <CardHeader className="bg-primary/5 pb-2">
+                    <div className="flex justify-between items-start">
+                      <CardTitle>{workout.name}</CardTitle>
+                      <Button variant="ghost" size="icon">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <CardDescription className="flex items-center gap-2">
+                      <Calendar className="h-3 w-3" /> {workout.date}
+                      <span className="mx-1">•</span>
+                      <Clock className="h-3 w-3" /> {workout.duration}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <div className="space-y-2">
+                      {workout.exercises.map((exercise, index) => (
+                        <div key={index} className="flex justify-between text-sm">
+                          <span className="font-medium">{exercise.name}</span>
+                          <span className="text-muted-foreground">
+                            {exercise.sets} sets × {exercise.reps} reps × {exercise.weight > 0 ? `${exercise.weight} lbs` : 'BW'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                  <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-end">
+                    <Button variant="ghost" size="sm">
+                      View Details
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
             </div>
           </section>
 
@@ -134,10 +239,45 @@ const Home = () => {
                 <span>Add Template</span>
               </Button>
             </div>
-            <div className="bg-card rounded-lg p-6 shadow">
-              <p className="text-muted-foreground text-center py-8">
-                Your workout templates will appear here
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {workoutTemplates.map((template) => (
+                <Card key={template.id}>
+                  <CardHeader className="bg-secondary/5 pb-2">
+                    <div className="flex justify-between items-start">
+                      <CardTitle>{template.name}</CardTitle>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon">
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <CardDescription>
+                      {template.exercises.length} exercises
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <div className="space-y-2">
+                      {template.exercises.map((exercise, index) => (
+                        <div key={index} className="flex justify-between text-sm">
+                          <span className="font-medium">{exercise.name}</span>
+                          <Badge variant="outline">{exercise.sets} sets</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                  <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-between">
+                    <Button variant="outline" size="sm">
+                      <Copy className="h-3 w-3 mr-1" /> Use Template
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      View Details
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
             </div>
           </section>
         </TabsContent>
