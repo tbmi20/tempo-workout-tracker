@@ -109,6 +109,24 @@ const Home = () => {
               </p>
             </div>
           </section>
+
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-semibold">Workout Templates</h2>
+              <Button 
+                className="flex items-center gap-2"
+                onClick={() => setWorkoutDialogOpen(true)}
+              >
+                <PlusCircle className="h-4 w-4" />
+                <span>Add Template</span>
+              </Button>
+            </div>
+            <div className="bg-card rounded-lg p-6 shadow">
+              <p className="text-muted-foreground text-center py-8">
+                Your workout templates will appear here
+              </p>
+            </div>
+          </section>
         </TabsContent>
 
         <TabsContent value="meals" className="space-y-6">
