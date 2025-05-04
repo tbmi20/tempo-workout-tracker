@@ -123,7 +123,7 @@ const MealForm = ({ open, onOpenChange, onSave }: MealFormProps) => {
           <DialogTitle className="text-xl font-bold">Log a Meal</DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-6 py-4">
+        <div className="grid gap-4 py-2">
           <div className="grid gap-2">
             <Label htmlFor="meal-type">Meal Type</Label>
             <Select value={mealType} onValueChange={setMealType}>
@@ -139,7 +139,7 @@ const MealForm = ({ open, onOpenChange, onSave }: MealFormProps) => {
             </Select>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium">Food Items</h3>
               <Button
@@ -152,13 +152,13 @@ const MealForm = ({ open, onOpenChange, onSave }: MealFormProps) => {
               </Button>
             </div>
 
-            <ScrollArea className="h-[300px] pr-4">
+            <ScrollArea className="h-[250px] pr-4">
               {foodItems.map((item, index) => (
-                <Card key={index} className="bg-muted/30 mb-4">
-                  <CardContent className="pt-4">
+                <Card key={index} className="bg-muted/30 mb-3">
+                  <CardContent className="py-3">
                     <div className="grid grid-cols-12 gap-3">
                       <div className="col-span-12 sm:col-span-4">
-                        <Label htmlFor={`food-name-${index}`}>Food Name</Label>
+                        <Label htmlFor={`food-name-${index}`} className="text-sm">Food Name</Label>
                         <Input
                           id={`food-name-${index}`}
                           value={item.name}
@@ -169,7 +169,7 @@ const MealForm = ({ open, onOpenChange, onSave }: MealFormProps) => {
                         />
                       </div>
                       <div className="col-span-6 sm:col-span-2">
-                        <Label htmlFor={`calories-${index}`}>Calories</Label>
+                        <Label htmlFor={`calories-${index}`} className="text-sm">Calories</Label>
                         <Input
                           id={`calories-${index}`}
                           type="number"
@@ -185,7 +185,7 @@ const MealForm = ({ open, onOpenChange, onSave }: MealFormProps) => {
                         />
                       </div>
                       <div className="col-span-6 sm:col-span-2">
-                        <Label htmlFor={`protein-${index}`}>Protein (g)</Label>
+                        <Label htmlFor={`protein-${index}`} className="text-sm">Protein (g)</Label>
                         <Input
                           id={`protein-${index}`}
                           type="number"
@@ -197,7 +197,7 @@ const MealForm = ({ open, onOpenChange, onSave }: MealFormProps) => {
                         />
                       </div>
                       <div className="col-span-6 sm:col-span-2">
-                        <Label htmlFor={`carbs-${index}`}>Carbs (g)</Label>
+                        <Label htmlFor={`carbs-${index}`} className="text-sm">Carbs (g)</Label>
                         <Input
                           id={`carbs-${index}`}
                           type="number"
@@ -209,7 +209,7 @@ const MealForm = ({ open, onOpenChange, onSave }: MealFormProps) => {
                         />
                       </div>
                       <div className="col-span-5 sm:col-span-1">
-                        <Label htmlFor={`fat-${index}`}>Fat (g)</Label>
+                        <Label htmlFor={`fat-${index}`} className="text-sm">Fat (g)</Label>
                         <Input
                           id={`fat-${index}`}
                           type="number"
@@ -239,24 +239,24 @@ const MealForm = ({ open, onOpenChange, onSave }: MealFormProps) => {
           </div>
 
           <Card className="bg-primary/5">
-            <CardContent className="pt-4">
-              <h3 className="text-lg font-medium mb-2">Meal Summary</h3>
+            <CardContent className="py-3">
+              <h3 className="text-base font-medium mb-2">Meal Summary</h3>
               <div className="grid grid-cols-4 gap-4 text-center">
                 <div>
                   <p className="text-sm text-muted-foreground">Calories</p>
-                  <p className="text-xl font-bold">{totals.calories}</p>
+                  <p className="text-lg font-bold">{totals.calories}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Protein</p>
-                  <p className="text-xl font-bold">{totals.protein}g</p>
+                  <p className="text-lg font-bold">{totals.protein}g</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Carbs</p>
-                  <p className="text-xl font-bold">{totals.carbs}g</p>
+                  <p className="text-lg font-bold">{totals.carbs}g</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Fat</p>
-                  <p className="text-xl font-bold">{totals.fat}g</p>
+                  <p className="text-lg font-bold">{totals.fat}g</p>
                 </div>
               </div>
             </CardContent>
