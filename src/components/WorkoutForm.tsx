@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Trash2 } from "lucide-react";
 
 interface Exercise {
@@ -128,105 +129,109 @@ const WorkoutForm = ({ open, onOpenChange, onSave }: WorkoutFormProps) => {
               </Button>
             </div>
 
-            {exercises.map((exercise) => (
-              <Card key={exercise.id} className="bg-gray-50">
-                <CardContent className="pt-4">
-                  <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-12 sm:col-span-5">
-                      <Label htmlFor={`exercise-${exercise.id}`}>
-                        Exercise
-                      </Label>
-                      <Select
-                        value={exercise.name}
-                        onValueChange={(value) =>
-                          updateExercise(exercise.id, "name", value)
-                        }
-                      >
-                        <SelectTrigger id={`exercise-${exercise.id}`}>
-                          <SelectValue placeholder="Select exercise" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {exerciseTypes.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+            <ScrollArea className="h-[350px] pr-4">
+              <div className="space-y-4">
+                {exercises.map((exercise) => (
+                  <Card key={exercise.id} className="bg-gray-50">
+                    <CardContent className="pt-4">
+                      <div className="grid grid-cols-12 gap-4">
+                        <div className="col-span-12 sm:col-span-5">
+                          <Label htmlFor={`exercise-${exercise.id}`}>
+                            Exercise
+                          </Label>
+                          <Select
+                            value={exercise.name}
+                            onValueChange={(value) =>
+                              updateExercise(exercise.id, "name", value)
+                            }
+                          >
+                            <SelectTrigger id={`exercise-${exercise.id}`}>
+                              <SelectValue placeholder="Select exercise" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {exerciseTypes.map((type) => (
+                                <SelectItem key={type} value={type}>
+                                  {type}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                    <div className="col-span-4 sm:col-span-2">
-                      <Label htmlFor={`sets-${exercise.id}`}>Sets</Label>
-                      <Input
-                        id={`sets-${exercise.id}`}
-                        type="number"
-                        min="1"
-                        value={exercise.sets}
-                        onChange={(e) =>
-                          updateExercise(
-                            exercise.id,
-                            "sets",
-                            parseInt(e.target.value) || 0,
-                          )
-                        }
-                      />
-                    </div>
+                        <div className="col-span-4 sm:col-span-2">
+                          <Label htmlFor={`sets-${exercise.id}`}>Sets</Label>
+                          <Input
+                            id={`sets-${exercise.id}`}
+                            type="number"
+                            min="1"
+                            value={exercise.sets}
+                            onChange={(e) =>
+                              updateExercise(
+                                exercise.id,
+                                "sets",
+                                parseInt(e.target.value) || 0,
+                              )
+                            }
+                          />
+                        </div>
 
-                    <div className="col-span-4 sm:col-span-2">
-                      <Label htmlFor={`reps-${exercise.id}`}>Reps</Label>
-                      <Input
-                        id={`reps-${exercise.id}`}
-                        type="number"
-                        min="1"
-                        value={exercise.reps}
-                        onChange={(e) =>
-                          updateExercise(
-                            exercise.id,
-                            "reps",
-                            parseInt(e.target.value) || 0,
-                          )
-                        }
-                      />
-                    </div>
+                        <div className="col-span-4 sm:col-span-2">
+                          <Label htmlFor={`reps-${exercise.id}`}>Reps</Label>
+                          <Input
+                            id={`reps-${exercise.id}`}
+                            type="number"
+                            min="1"
+                            value={exercise.reps}
+                            onChange={(e) =>
+                              updateExercise(
+                                exercise.id,
+                                "reps",
+                                parseInt(e.target.value) || 0,
+                              )
+                            }
+                          />
+                        </div>
 
-                    <div className="col-span-4 sm:col-span-2">
-                      <Label htmlFor={`weight-${exercise.id}`}>Weight</Label>
-                      <Input
-                        id={`weight-${exercise.id}`}
-                        type="number"
-                        min="0"
-                        value={exercise.weight}
-                        onChange={(e) =>
-                          updateExercise(
-                            exercise.id,
-                            "weight",
-                            parseInt(e.target.value) || 0,
-                          )
-                        }
-                      />
-                    </div>
+                        <div className="col-span-4 sm:col-span-2">
+                          <Label htmlFor={`weight-${exercise.id}`}>Weight</Label>
+                          <Input
+                            id={`weight-${exercise.id}`}
+                            type="number"
+                            min="0"
+                            value={exercise.weight}
+                            onChange={(e) =>
+                              updateExercise(
+                                exercise.id,
+                                "weight",
+                                parseInt(e.target.value) || 0,
+                              )
+                            }
+                          />
+                        </div>
 
-                    <div className="col-span-12 sm:col-span-1 flex items-end justify-end">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeExercise(exercise.id)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                        <div className="col-span-12 sm:col-span-1 flex items-end justify-end">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeExercise(exercise.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {exercises.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    No exercises added. Click "Add Exercise" to start building your
+                    workout.
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            {exercises.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                No exercises added. Click "Add Exercise" to start building your
-                workout.
+                )}
               </div>
-            )}
+            </ScrollArea>
           </div>
         </div>
 
