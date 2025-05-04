@@ -103,6 +103,61 @@ const Home = () => {
     },
   ];
 
+  // Sample meal history data
+  const mealHistory = [
+    {
+      id: 1,
+      name: "Breakfast",
+      date: "May 4, 2025",
+      time: "8:30 AM",
+      calories: 450,
+      items: [
+        { name: "Oatmeal with berries", calories: 280 },
+        { name: "Greek yogurt", calories: 120 },
+        { name: "Black coffee", calories: 5 },
+        { name: "Almond butter", calories: 45 },
+      ],
+    },
+    {
+      id: 2,
+      name: "Lunch",
+      date: "May 3, 2025",
+      time: "12:45 PM",
+      calories: 620,
+      items: [
+        { name: "Grilled chicken salad", calories: 320 },
+        { name: "Whole grain bread", calories: 120 },
+        { name: "Olive oil dressing", calories: 90 },
+        { name: "Apple", calories: 90 },
+      ],
+    },
+    {
+      id: 3,
+      name: "Dinner",
+      date: "May 3, 2025",
+      time: "7:00 PM",
+      calories: 580,
+      items: [
+        { name: "Salmon fillet", calories: 280 },
+        { name: "Brown rice", calories: 150 },
+        { name: "Steamed broccoli", calories: 50 },
+        { name: "Avocado", calories: 100 },
+      ],
+    },
+    {
+      id: 4,
+      name: "Post-workout Snack",
+      date: "May 3, 2025",
+      time: "4:15 PM",
+      calories: 320,
+      items: [
+        { name: "Protein shake", calories: 180 },
+        { name: "Banana", calories: 105 },
+        { name: "Handful of almonds", calories: 35 },
+      ],
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background p-6">
       <header className="mb-8">
@@ -294,10 +349,47 @@ const Home = () => {
                 <span>Log Meal</span>
               </Button>
             </div>
-            <div className="bg-card rounded-lg p-6 shadow">
-              <p className="text-muted-foreground text-center py-8">
-                Your meal history will appear here
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {mealHistory.map((meal) => (
+                <Card key={meal.id} className="overflow-hidden">
+                  <CardHeader className="bg-green-50 pb-2">
+                    <div className="flex justify-between items-start">
+                      <CardTitle>{meal.name}</CardTitle>
+                      <Button variant="ghost" size="icon">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <CardDescription className="flex items-center gap-2">
+                      <Calendar className="h-3 w-3" /> {meal.date}
+                      <span className="mx-1">•</span>
+                      <Clock className="h-3 w-3" /> {meal.time}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <div className="mb-3">
+                      <Badge variant="secondary">{meal.calories} calories</Badge>
+                    </div>
+                    <div className="space-y-2">
+                      {meal.items.map((item, index) => (
+                        <div key={index} className="flex justify-between text-sm">
+                          <span className="font-medium">{item.name}</span>
+                          <span className="text-muted-foreground">
+                            {item.calories} cal
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                  <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-between">
+                    <Button variant="outline" size="sm">
+                      Track Again
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      View Details
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
             </div>
           </section>
         </TabsContent>
