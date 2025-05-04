@@ -5,16 +5,23 @@ import { PlusCircle, BarChart3, Dumbbell, Utensils } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import SummaryCards from "./SummaryCards";
 import WorkoutForm from "./WorkoutForm";
+import WorkoutTemplateForm from "./WorkoutTemplateForm";
 import MealForm from "./MealForm";
 import ProgressCharts from "./ProgressCharts";
 
 const Home = () => {
   const [workoutDialogOpen, setWorkoutDialogOpen] = useState(false);
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [mealDialogOpen, setMealDialogOpen] = useState(false);
 
   const handleSaveWorkout = (workout: any) => {
     console.log("Workout saved:", workout);
     // Here you would typically save the workout data to your database
+  };
+
+  const handleSaveTemplate = (template: any) => {
+    console.log("Template saved:", template);
+    // Here you would typically save the template data to your database
   };
 
   const handleSaveMeal = (meal: any) => {
@@ -53,6 +60,12 @@ const Home = () => {
         open={workoutDialogOpen}
         onOpenChange={setWorkoutDialogOpen}
         onSave={handleSaveWorkout}
+      />
+
+      <WorkoutTemplateForm
+        open={templateDialogOpen}
+        onOpenChange={setTemplateDialogOpen}
+        onSave={handleSaveTemplate}
       />
 
       <MealForm
@@ -115,7 +128,7 @@ const Home = () => {
               <h2 className="text-2xl font-semibold">Workout Templates</h2>
               <Button 
                 className="flex items-center gap-2"
-                onClick={() => setWorkoutDialogOpen(true)}
+                onClick={() => setTemplateDialogOpen(true)}
               >
                 <PlusCircle className="h-4 w-4" />
                 <span>Add Template</span>
