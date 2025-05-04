@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Trash2 } from "lucide-react";
 
 interface MealFormProps {
@@ -151,88 +152,90 @@ const MealForm = ({ open, onOpenChange, onSave }: MealFormProps) => {
               </Button>
             </div>
 
-            {foodItems.map((item, index) => (
-              <Card key={index} className="bg-muted/30">
-                <CardContent className="pt-4">
-                  <div className="grid grid-cols-12 gap-3">
-                    <div className="col-span-12 sm:col-span-4">
-                      <Label htmlFor={`food-name-${index}`}>Food Name</Label>
-                      <Input
-                        id={`food-name-${index}`}
-                        value={item.name}
-                        onChange={(e) =>
-                          handleFoodItemChange(index, "name", e.target.value)
-                        }
-                        placeholder="e.g., Chicken Breast"
-                      />
+            <ScrollArea className="h-[300px] pr-4">
+              {foodItems.map((item, index) => (
+                <Card key={index} className="bg-muted/30 mb-4">
+                  <CardContent className="pt-4">
+                    <div className="grid grid-cols-12 gap-3">
+                      <div className="col-span-12 sm:col-span-4">
+                        <Label htmlFor={`food-name-${index}`}>Food Name</Label>
+                        <Input
+                          id={`food-name-${index}`}
+                          value={item.name}
+                          onChange={(e) =>
+                            handleFoodItemChange(index, "name", e.target.value)
+                          }
+                          placeholder="e.g., Chicken Breast"
+                        />
+                      </div>
+                      <div className="col-span-6 sm:col-span-2">
+                        <Label htmlFor={`calories-${index}`}>Calories</Label>
+                        <Input
+                          id={`calories-${index}`}
+                          type="number"
+                          value={item.calories}
+                          onChange={(e) =>
+                            handleFoodItemChange(
+                              index,
+                              "calories",
+                              e.target.value,
+                            )
+                          }
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="col-span-6 sm:col-span-2">
+                        <Label htmlFor={`protein-${index}`}>Protein (g)</Label>
+                        <Input
+                          id={`protein-${index}`}
+                          type="number"
+                          value={item.protein}
+                          onChange={(e) =>
+                            handleFoodItemChange(index, "protein", e.target.value)
+                          }
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="col-span-6 sm:col-span-2">
+                        <Label htmlFor={`carbs-${index}`}>Carbs (g)</Label>
+                        <Input
+                          id={`carbs-${index}`}
+                          type="number"
+                          value={item.carbs}
+                          onChange={(e) =>
+                            handleFoodItemChange(index, "carbs", e.target.value)
+                          }
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="col-span-5 sm:col-span-1">
+                        <Label htmlFor={`fat-${index}`}>Fat (g)</Label>
+                        <Input
+                          id={`fat-${index}`}
+                          type="number"
+                          value={item.fat}
+                          onChange={(e) =>
+                            handleFoodItemChange(index, "fat", e.target.value)
+                          }
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="col-span-1 flex items-end justify-end">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveFoodItem(index)}
+                          disabled={foodItems.length === 1}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="col-span-6 sm:col-span-2">
-                      <Label htmlFor={`calories-${index}`}>Calories</Label>
-                      <Input
-                        id={`calories-${index}`}
-                        type="number"
-                        value={item.calories}
-                        onChange={(e) =>
-                          handleFoodItemChange(
-                            index,
-                            "calories",
-                            e.target.value,
-                          )
-                        }
-                        placeholder="0"
-                      />
-                    </div>
-                    <div className="col-span-6 sm:col-span-2">
-                      <Label htmlFor={`protein-${index}`}>Protein (g)</Label>
-                      <Input
-                        id={`protein-${index}`}
-                        type="number"
-                        value={item.protein}
-                        onChange={(e) =>
-                          handleFoodItemChange(index, "protein", e.target.value)
-                        }
-                        placeholder="0"
-                      />
-                    </div>
-                    <div className="col-span-6 sm:col-span-2">
-                      <Label htmlFor={`carbs-${index}`}>Carbs (g)</Label>
-                      <Input
-                        id={`carbs-${index}`}
-                        type="number"
-                        value={item.carbs}
-                        onChange={(e) =>
-                          handleFoodItemChange(index, "carbs", e.target.value)
-                        }
-                        placeholder="0"
-                      />
-                    </div>
-                    <div className="col-span-5 sm:col-span-1">
-                      <Label htmlFor={`fat-${index}`}>Fat (g)</Label>
-                      <Input
-                        id={`fat-${index}`}
-                        type="number"
-                        value={item.fat}
-                        onChange={(e) =>
-                          handleFoodItemChange(index, "fat", e.target.value)
-                        }
-                        placeholder="0"
-                      />
-                    </div>
-                    <div className="col-span-1 flex items-end justify-end">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveFoodItem(index)}
-                        disabled={foodItems.length === 1}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </ScrollArea>
           </div>
 
           <Card className="bg-primary/5">

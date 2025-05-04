@@ -1,4 +1,3 @@
-// filepath: /Users/tbmi/Documents/GitHub/tempo-workout-tracker/src/components/WorkoutTemplateForm.tsx
 import React, { useState } from "react";
 import {
   Dialog,
@@ -18,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Trash2 } from "lucide-react";
 
 interface TemplateExercise {
@@ -130,70 +130,74 @@ const WorkoutTemplateForm = ({
               </Button>
             </div>
 
-            {exercises.map((exercise) => (
-              <Card key={exercise.id} className="bg-gray-50">
-                <CardContent className="pt-4">
-                  <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-12 sm:col-span-8">
-                      <Label htmlFor={`exercise-${exercise.id}`}>
-                        Exercise
-                      </Label>
-                      <Select
-                        value={exercise.name}
-                        onValueChange={(value) =>
-                          updateExercise(exercise.id, "name", value)
-                        }
-                      >
-                        <SelectTrigger id={`exercise-${exercise.id}`}>
-                          <SelectValue placeholder="Select exercise" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {exerciseTypes.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+            <ScrollArea className="h-[300px] pr-4">
+              <div className="space-y-4">
+                {exercises.map((exercise) => (
+                  <Card key={exercise.id} className="bg-gray-50">
+                    <CardContent className="pt-4">
+                      <div className="grid grid-cols-12 gap-4">
+                        <div className="col-span-12 sm:col-span-8">
+                          <Label htmlFor={`exercise-${exercise.id}`}>
+                            Exercise
+                          </Label>
+                          <Select
+                            value={exercise.name}
+                            onValueChange={(value) =>
+                              updateExercise(exercise.id, "name", value)
+                            }
+                          >
+                            <SelectTrigger id={`exercise-${exercise.id}`}>
+                              <SelectValue placeholder="Select exercise" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {exerciseTypes.map((type) => (
+                                <SelectItem key={type} value={type}>
+                                  {type}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                    <div className="col-span-4 sm:col-span-3">
-                      <Label htmlFor={`sets-${exercise.id}`}>Sets</Label>
-                      <Input
-                        id={`sets-${exercise.id}`}
-                        type="number"
-                        min="1"
-                        value={exercise.sets}
-                        onChange={(e) =>
-                          updateExercise(
-                            exercise.id,
-                            "sets",
-                            parseInt(e.target.value) || 0,
-                          )
-                        }
-                      />
-                    </div>
+                        <div className="col-span-4 sm:col-span-3">
+                          <Label htmlFor={`sets-${exercise.id}`}>Sets</Label>
+                          <Input
+                            id={`sets-${exercise.id}`}
+                            type="number"
+                            min="1"
+                            value={exercise.sets}
+                            onChange={(e) =>
+                              updateExercise(
+                                exercise.id,
+                                "sets",
+                                parseInt(e.target.value) || 0,
+                              )
+                            }
+                          />
+                        </div>
 
-                    <div className="col-span-12 sm:col-span-1 flex items-end justify-end">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeExercise(exercise.id)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                        <div className="col-span-12 sm:col-span-1 flex items-end justify-end">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeExercise(exercise.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {exercises.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    No exercises added. Click "Add Exercise" to start building your template.
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            {exercises.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                No exercises added. Click "Add Exercise" to start building your template.
+                )}
               </div>
-            )}
+            </ScrollArea>
           </div>
         </div>
 
