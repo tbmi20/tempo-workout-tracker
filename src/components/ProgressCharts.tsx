@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { format, subDays, addDays } from "date-fns";
+import { format, subDays } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -19,6 +19,31 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { DateRange } from "react-day-picker";
+import { 
+  Chart as ChartJS, 
+  CategoryScale, 
+  LinearScale, 
+  BarElement, 
+  LineElement,
+  PointElement,
+  Title, 
+  Tooltip, 
+  Legend,
+  ChartOptions
+} from 'chart.js';
+import { Bar, Line } from 'react-chartjs-2';
+
+// Register the required Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface ChartData {
   labels: string[];
@@ -89,96 +114,64 @@ const ProgressCharts = ({
     }
   };
 
-  // Function to render a simple bar chart
-  const renderBarChart = (data: ChartData, color: string, unit: string) => {
-    const maxValue = Math.max(...data.values) * 1.2; // Add 20% padding
-
-    return (
-      <div className="w-full h-64 mt-4">
-        <div className="flex h-full items-end space-x-2">
-          {data.labels.map((label, index) => (
-            <div key={index} className="flex flex-col items-center flex-1">
-              <div
-                className={`w-full ${color} rounded-t-md transition-all duration-300 ease-in-out`}
-                style={{ height: `${(data.values[index] / maxValue) * 100}%` }}
-              ></div>
-              <div className="text-xs mt-2 text-muted-foreground">{label}</div>
-              <div className="text-sm font-medium">
-                {data.values[index]}
-                {unit}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+  // Function to convert our ChartData format to Chart.js format
+  const convertToChartJsData = (data: ChartData, label: string, color: string, backgroundColor: string) => {
+    return {
+      labels: data.labels,
+      datasets: [
+        {
+          label,
+          data: data.values,
+          backgroundColor,
+          borderColor: color,
+          borderWidth: 1,
+        },
+      ],
+    };
   };
 
-  // Function to render a simple line chart (for weight progress)
-  const renderLineChart = (data: ChartData, color: string, unit: string) => {
-    const maxValue = Math.max(...data.values) * 1.1; // Add 10% padding
-    const minValue = Math.min(...data.values) * 0.9; // Subtract 10% padding
-    const range = maxValue - minValue;
+  // Common chart options
+  const barChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return `${context.dataset.label}: ${context.parsed.y} cal`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
 
-    // Calculate points for the SVG polyline
-    const points = data.values
-      .map((value, index) => {
-        const x = (index / (data.values.length - 1)) * 100;
-        const y = 100 - ((value - minValue) / range) * 100;
-        return `${x},${y}`;
-      })
-      .join(" ");
-
-    return (
-      <div className="w-full h-64 mt-4">
-        <div className="relative w-full h-full">
-          <svg
-            className="w-full h-full"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-          >
-            <polyline
-              points={points}
-              fill="none"
-              stroke={
-                color === "bg-primary"
-                  ? "hsl(var(--primary))"
-                  : "hsl(var(--secondary))"
-              }
-              strokeWidth="2"
-            />
-          </svg>
-
-          <div className="absolute bottom-0 left-0 right-0 flex justify-between">
-            {data.labels.map((label, index) => (
-              <div key={index} className="text-xs text-muted-foreground">
-                {label}
-              </div>
-            ))}
-          </div>
-
-          <div className="absolute top-0 right-0 flex flex-col justify-between h-full text-xs text-muted-foreground">
-            <div>
-              {Math.round(maxValue)}
-              {unit}
-            </div>
-            <div>
-              {Math.round(minValue)}
-              {unit}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-between mt-6">
-          {data.labels.map((label, index) => (
-            <div key={index} className="text-sm font-medium">
-              {data.values[index]}
-              {unit}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+  // Line chart options
+  const lineChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return `${context.dataset.label}: ${context.parsed.y} lbs`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+      },
+    },
   };
 
   return (
@@ -270,7 +263,17 @@ const ProgressCharts = ({
               <CardTitle>Calories Burned</CardTitle>
             </CardHeader>
             <CardContent>
-              {renderBarChart(caloriesBurnedData, "bg-orange-500/90", "cal")}
+              <div className="h-64 w-full">
+                <Bar 
+                  options={barChartOptions} 
+                  data={convertToChartJsData(
+                    caloriesBurnedData, 
+                    'Calories Burned', 
+                    'rgb(249, 115, 22)', // Tailwind orange-500
+                    'rgba(249, 115, 22, 0.5)'
+                  )} 
+                />
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -281,7 +284,17 @@ const ProgressCharts = ({
               <CardTitle>Daily Calorie Intake</CardTitle>
             </CardHeader>
             <CardContent>
-              {renderBarChart(nutritionData, "bg-secondary", "cal")}
+              <div className="h-64 w-full">
+                <Bar 
+                  options={barChartOptions}
+                  data={convertToChartJsData(
+                    nutritionData, 
+                    'Calorie Intake', 
+                    'hsl(var(--secondary))', 
+                    'hsla(var(--secondary), 0.5)'
+                  )} 
+                />
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -292,7 +305,17 @@ const ProgressCharts = ({
               <CardTitle>Weight Tracking (lbs)</CardTitle>
             </CardHeader>
             <CardContent>
-              {renderLineChart(weightData, "bg-primary", "lbs")}
+              <div className="h-64 w-full">
+                <Line 
+                  options={lineChartOptions}
+                  data={convertToChartJsData(
+                    weightData, 
+                    'Weight', 
+                    'hsl(var(--primary))', 
+                    'hsla(var(--primary), 0.2)'
+                  )} 
+                />
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
