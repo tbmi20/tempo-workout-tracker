@@ -33,10 +33,6 @@ interface ProgressChartsProps {
 }
 
 const ProgressCharts = ({
-  workoutData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    values: [30, 45, 0, 60, 25, 50, 0],
-  },
   caloriesBurnedData = {
     labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     values: [320, 450, 0, 580, 250, 520, 0],
