@@ -147,6 +147,18 @@ const ProgressCharts = ({
       }
     },
     scales: {
+      x: {
+        ticks: {
+          callback: function(val, index) {
+            // Show day/label on first line
+            const labels = this.getLabelForValue(val as number);
+            // Get data value for this index
+            const dataVal = this.chart.data.datasets[0].data[index as number];
+            // Return multiline label: day name and value with unit
+            return [labels, `${dataVal} cal`];
+          }
+        }
+      },
       y: {
         beginAtZero: true,
       },
@@ -170,6 +182,18 @@ const ProgressCharts = ({
       }
     },
     scales: {
+      x: {
+        ticks: {
+          callback: function(val, index) {
+            // Show week/label on first line
+            const labels = this.getLabelForValue(val as number);
+            // Get data value for this index
+            const dataVal = this.chart.data.datasets[0].data[index as number];
+            // Return multiline label: week label and weight value
+            return [labels, `${dataVal} lbs`];
+          }
+        }
+      },
       y: {
         beginAtZero: false,
       },
