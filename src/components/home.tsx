@@ -261,7 +261,7 @@ const Home = () => {
                       <Clock className="h-3 w-3" /> {workout.duration}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-4">
+                  <CardContent className="pt-4 h-[180px] overflow-y-auto">
                     <div className="space-y-2">
                       {workout.exercises.map((exercise, index) => (
                         <div key={index} className="flex justify-between text-sm">
@@ -313,7 +313,7 @@ const Home = () => {
                       {template.exercises.length} exercises
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-4">
+                  <CardContent className="pt-4 h-[180px] overflow-y-auto">
                     <div className="space-y-2">
                       {template.exercises.map((exercise, index) => (
                         <div key={index} className="flex justify-between text-sm">
@@ -365,7 +365,7 @@ const Home = () => {
                       <Clock className="h-3 w-3" /> {meal.time}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-4">
+                  <CardContent className="pt-4 h-[180px] overflow-y-auto">
                     <div className="mb-3">
                       <Badge variant="secondary">{meal.calories} calories</Badge>
                     </div>
