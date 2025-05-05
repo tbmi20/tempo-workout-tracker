@@ -236,55 +236,6 @@ const Home = () => {
         <TabsContent value="workouts" className="space-y-6">
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-semibold">Workout History</h2>
-              <Button 
-                className="flex items-center gap-2"
-                onClick={() => setWorkoutDialogOpen(true)}
-              >
-                <PlusCircle className="h-4 w-4" />
-                <span>Add Workout</span>
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {workoutHistory.map((workout) => (
-                <Card key={workout.id} className="overflow-hidden">
-                  <CardHeader className="bg-primary/5 pb-2">
-                    <div className="flex justify-between items-start">
-                      <CardTitle>{workout.name}</CardTitle>
-                      <Button variant="ghost" size="icon">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <CardDescription className="flex items-center gap-2">
-                      <Calendar className="h-3 w-3" /> {workout.date}
-                      <span className="mx-1">•</span>
-                      <Clock className="h-3 w-3" /> {workout.duration}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4 h-[180px] overflow-y-auto">
-                    <div className="space-y-2">
-                      {workout.exercises.map((exercise, index) => (
-                        <div key={index} className="flex justify-between text-sm">
-                          <span className="font-medium">{exercise.name}</span>
-                          <span className="text-muted-foreground">
-                            {exercise.sets} sets × {exercise.reps} reps × {exercise.weight > 0 ? `${exercise.weight} lbs` : 'BW'}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-end">
-                    <Button variant="ghost" size="sm">
-                      View Details
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-semibold">Workout Templates</h2>
               <Button 
                 className="flex items-center gap-2"
@@ -327,6 +278,55 @@ const Home = () => {
                     <Button variant="outline" size="sm">
                       <Copy className="h-3 w-3 mr-1" /> Use Template
                     </Button>
+                    <Button variant="ghost" size="sm">
+                      View Details
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-semibold">Workout History</h2>
+              <Button 
+                className="flex items-center gap-2"
+                onClick={() => setWorkoutDialogOpen(true)}
+              >
+                <PlusCircle className="h-4 w-4" />
+                <span>Add Workout</span>
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {workoutHistory.map((workout) => (
+                <Card key={workout.id} className="overflow-hidden">
+                  <CardHeader className="bg-primary/5 pb-2">
+                    <div className="flex justify-between items-start">
+                      <CardTitle>{workout.name}</CardTitle>
+                      <Button variant="ghost" size="icon">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <CardDescription className="flex items-center gap-2">
+                      <Calendar className="h-3 w-3" /> {workout.date}
+                      <span className="mx-1">•</span>
+                      <Clock className="h-3 w-3" /> {workout.duration}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-4 h-[180px] overflow-y-auto">
+                    <div className="space-y-2">
+                      {workout.exercises.map((exercise, index) => (
+                        <div key={index} className="flex justify-between text-sm">
+                          <span className="font-medium">{exercise.name}</span>
+                          <span className="text-muted-foreground">
+                            {exercise.sets} sets × {exercise.reps} reps × {exercise.weight > 0 ? `${exercise.weight} lbs` : 'BW'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                  <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-end">
                     <Button variant="ghost" size="sm">
                       View Details
                     </Button>
