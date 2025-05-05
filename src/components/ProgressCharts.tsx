@@ -27,6 +27,7 @@ interface ChartData {
 
 interface ProgressChartsProps {
   workoutData?: ChartData;
+  caloriesBurnedData?: ChartData;
   nutritionData?: ChartData;
   weightData?: ChartData;
 }
@@ -35,6 +36,10 @@ const ProgressCharts = ({
   workoutData = {
     labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     values: [30, 45, 0, 60, 25, 50, 0],
+  },
+  caloriesBurnedData = {
+    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    values: [320, 450, 0, 580, 250, 520, 0],
   },
   nutritionData = {
     labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -256,20 +261,20 @@ const ProgressCharts = ({
         </div>
       </div>
 
-      <Tabs defaultValue="workout" className="w-full">
+      <Tabs defaultValue="calories" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="workout">Workout Progress</TabsTrigger>
+          <TabsTrigger value="calories">Calories Burned</TabsTrigger>
           <TabsTrigger value="nutrition">Nutrition Progress</TabsTrigger>
           <TabsTrigger value="weight">Weight Progress</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="workout" className="mt-6">
+        <TabsContent value="calories" className="mt-6 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Workout Duration (minutes)</CardTitle>
+              <CardTitle>Calories Burned</CardTitle>
             </CardHeader>
             <CardContent>
-              {renderBarChart(workoutData, "bg-primary", "min")}
+              {renderBarChart(caloriesBurnedData, "bg-orange-500/90", "cal")}
             </CardContent>
           </Card>
         </TabsContent>
