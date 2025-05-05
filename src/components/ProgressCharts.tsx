@@ -136,12 +136,12 @@ const ProgressCharts = ({
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top' as const,
+        display: false,
       },
       tooltip: {
         callbacks: {
           label: function(context) {
-            return `${context.dataset.label}: ${context.parsed.y} cal`;
+            return `${context.parsed.y} cal`;
           }
         }
       }
@@ -159,12 +159,12 @@ const ProgressCharts = ({
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top' as const,
+        display: false,
       },
       tooltip: {
         callbacks: {
           label: function(context) {
-            return `${context.dataset.label}: ${context.parsed.y} lbs`;
+            return `${context.parsed.y} lbs`;
           }
         }
       }
