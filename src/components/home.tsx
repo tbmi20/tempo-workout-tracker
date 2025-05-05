@@ -8,6 +8,7 @@ import WorkoutForm from "./WorkoutForm";
 import WorkoutTemplateForm from "./WorkoutTemplateForm";
 import MealForm from "./MealForm";
 import ProgressCharts from "./ProgressCharts";
+import WorkoutDetailDialog from "./WorkoutDetailDialog";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -15,6 +16,8 @@ const Home = () => {
   const [workoutDialogOpen, setWorkoutDialogOpen] = useState(false);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [mealDialogOpen, setMealDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedWorkout, setSelectedWorkout] = useState<any>(null);
 
   const handleSaveWorkout = (workout: any) => {
     console.log("Workout saved:", workout);
@@ -29,6 +32,11 @@ const Home = () => {
   const handleSaveMeal = (meal: any) => {
     console.log("Meal saved:", meal);
     // Here you would typically save the meal data to your database
+  };
+
+  const handleViewWorkoutDetails = (workout: any) => {
+    setSelectedWorkout(workout);
+    setDetailDialogOpen(true);
   };
 
   // Sample workout history data
@@ -203,6 +211,12 @@ const Home = () => {
         onSave={handleSaveMeal}
       />
 
+      <WorkoutDetailDialog
+        open={detailDialogOpen}
+        onOpenChange={setDetailDialogOpen}
+        workout={selectedWorkout}
+      />
+
       <Tabs defaultValue="dashboard" className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
@@ -327,7 +341,7 @@ const Home = () => {
                     </div>
                   </CardContent>
                   <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-end">
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" onClick={() => handleViewWorkoutDetails(workout)}>
                       View Details
                     </Button>
                   </CardFooter>
