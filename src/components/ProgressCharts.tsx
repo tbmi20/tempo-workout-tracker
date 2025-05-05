@@ -133,6 +133,7 @@ const ProgressCharts = ({
   // Common chart options
   const barChartOptions: ChartOptions<'bar'> = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top' as const,
@@ -155,6 +156,7 @@ const ProgressCharts = ({
   // Line chart options
   const lineChartOptions: ChartOptions<'line'> = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top' as const,
@@ -272,6 +274,7 @@ const ProgressCharts = ({
                     'rgb(249, 115, 22)', // Tailwind orange-500
                     'rgba(249, 115, 22, 0.5)'
                   )} 
+                  className="w-full h-full"
                 />
               </div>
             </CardContent>
@@ -293,6 +296,7 @@ const ProgressCharts = ({
                     'hsl(var(--secondary))', 
                     'hsla(var(--secondary), 0.5)'
                   )} 
+                  className="w-full h-full"
                 />
               </div>
             </CardContent>
@@ -314,6 +318,7 @@ const ProgressCharts = ({
                     'hsl(var(--primary))', 
                     'hsla(var(--primary), 0.2)'
                   )} 
+                  className="w-full h-full"
                 />
               </div>
             </CardContent>
