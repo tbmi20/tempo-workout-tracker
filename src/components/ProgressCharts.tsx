@@ -32,6 +32,8 @@ import {
   ChartOptions
 } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 // Register the required Chart.js components
 ChartJS.register(
@@ -77,6 +79,12 @@ const ProgressCharts = ({
     to: new Date(),
   });
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [weightUnit, setWeightUnit] = useState<"lbs" | "kg">("lbs");
+
+  // Function to convert pounds to kilograms
+  const lbsToKg = (value: number): number => {
+    return Math.round((value / 2.2046) * 10) / 10; // Convert and round to 1 decimal place
+  };
 
   // Function to handle time range change
   const handleTimeRangeChange = (value: string) => {
@@ -165,6 +173,24 @@ const ProgressCharts = ({
     },
   };
 
+  // Get weight data with appropriate unit
+  const getWeightData = () => {
+    return {
+      labels: weightData.labels,
+      datasets: [
+        {
+          label: `Weight (${weightUnit})`,
+          data: weightUnit === "lbs" 
+            ? weightData.values 
+            : weightData.values.map(value => lbsToKg(value)),
+          backgroundColor: 'hsla(var(--primary), 0.2)',
+          borderColor: 'hsl(var(--primary))',
+          borderWidth: 1,
+        },
+      ],
+    };
+  };
+
   // Line chart options
   const lineChartOptions: ChartOptions<'line'> = {
     responsive: true,
@@ -176,7 +202,7 @@ const ProgressCharts = ({
       tooltip: {
         callbacks: {
           label: function(context) {
-            return `${context.parsed.y} lbs`;
+            return `${context.parsed.y} ${weightUnit}`;
           }
         }
       }
@@ -190,7 +216,7 @@ const ProgressCharts = ({
             // Get data value for this index
             const dataVal = this.chart.data.datasets[0].data[index as number];
             // Return multiline label: week label and weight value
-            return [labels, `${dataVal} lbs`];
+            return [labels, `${dataVal} ${weightUnit}`];
           }
         }
       },
@@ -330,18 +356,24 @@ const ProgressCharts = ({
         <TabsContent value="weight" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Weight Tracking (lbs)</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle>Weight Tracking</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="weight-unit" className="text-sm">lbs</Label>
+                  <Switch 
+                    id="weight-unit" 
+                    checked={weightUnit === "kg"}
+                    onCheckedChange={(checked) => setWeightUnit(checked ? "kg" : "lbs")}
+                  />
+                  <Label htmlFor="weight-unit" className="text-sm">kg</Label>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="h-64 w-full">
                 <Line 
                   options={lineChartOptions}
-                  data={convertToChartJsData(
-                    weightData, 
-                    'Weight', 
-                    'hsl(var(--primary))', 
-                    'hsla(var(--primary), 0.2)'
-                  )} 
+                  data={getWeightData()}
                   className="w-full h-full"
                 />
               </div>
