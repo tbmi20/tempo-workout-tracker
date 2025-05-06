@@ -170,7 +170,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({
             </div>
             <CardDescription className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
-              <span>Last meal: {mealSummary.lastMeal}</span>
+              <span>Today's Nutrition</span>
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -220,7 +220,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({
           <CardFooter className="pt-0">
             <div className="flex items-center text-xs text-muted-foreground">
               <Calendar className="h-3 w-3 mr-1" />
-              <span>Today's Nutrition</span>
+              <span>Last meal: {mealSummary.lastMeal}</span>
             </div>
           </CardFooter>
         </Card>
