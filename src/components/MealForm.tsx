@@ -107,9 +107,15 @@ const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProp
   ) => {
     const newFoodItems = [...foodItems];
     if (field === "name") {
-      newFoodItems[index][field] = value as string;
-    } else {
-      newFoodItems[index][field] = Number(value);
+      newFoodItems[index].name = value as string;
+    } else if (field === "calories") {
+      newFoodItems[index].calories = Number(value);
+    } else if (field === "protein") {
+      newFoodItems[index].protein = Number(value);
+    } else if (field === "carbs") {
+      newFoodItems[index].carbs = Number(value);
+    } else if (field === "fat") {
+      newFoodItems[index].fat = Number(value);
     }
     setFoodItems(newFoodItems);
   };
@@ -145,32 +151,33 @@ const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] bg-background">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">
+      <DialogContent className="sm:max-w-[600px] bg-background max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="pb-1">
+          <DialogTitle className="text-lg font-bold">
             {mealToEdit ? "Edit Meal" : "Log a Meal"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 py-2">
-          {/* Meal Name */}
-          <div className="grid gap-2">
-            <Label htmlFor="meal-name">Meal Name (optional)</Label>
-            <Input 
-              id="meal-name" 
-              value={mealName}
-              onChange={(e) => setMealName(e.target.value)}
-              placeholder="e.g., Morning Oatmeal, Lunch at Work"
-            />
-          </div>
-
+        <div className="grid gap-3 py-2">
           <div className="grid grid-cols-12 gap-4">
+            {/* Meal Name */}
+            <div className="col-span-12 sm:col-span-6 grid gap-1">
+              <Label htmlFor="meal-name" className="text-xs">Meal Name (optional)</Label>
+              <Input 
+                id="meal-name" 
+                value={mealName}
+                onChange={(e) => setMealName(e.target.value)}
+                placeholder="e.g., Morning Oatmeal"
+                className="h-8"
+              />
+            </div>
+
             {/* Meal Type */}
-            <div className="col-span-6 grid gap-2">
-              <Label htmlFor="meal-type">Meal Type</Label>
+            <div className="col-span-6 sm:col-span-3 grid gap-1">
+              <Label htmlFor="meal-type" className="text-xs">Meal Type</Label>
               <Select value={mealType} onValueChange={setMealType}>
-                <SelectTrigger id="meal-type">
-                  <SelectValue placeholder="Select meal type" />
+                <SelectTrigger id="meal-type" className="h-8">
+                  <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="breakfast">Breakfast</SelectItem>
@@ -182,37 +189,39 @@ const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProp
             </div>
 
             {/* Meal Time */}
-            <div className="col-span-6 grid gap-2">
-              <Label htmlFor="meal-time">Time</Label>
+            <div className="col-span-6 sm:col-span-3 grid gap-1">
+              <Label htmlFor="meal-time" className="text-xs">Time</Label>
               <Input 
                 id="meal-time"
                 value={mealTime}
                 onChange={(e) => setMealTime(e.target.value)}
                 placeholder="e.g., 8:30 AM"
+                className="h-8"
               />
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium">Food Items</h3>
+              <Label className="text-xs font-medium">Food Items</Label>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleAddFoodItem}
+                className="h-7 px-2 text-xs"
               >
-                <Plus className="h-4 w-4 mr-1" /> Add Item
+                <Plus className="h-3 w-3 mr-1" /> Add Item
               </Button>
             </div>
 
-            <ScrollArea className="h-[250px] pr-4">
+            <ScrollArea className="h-[170px] pr-4">
               {foodItems.map((item, index) => (
-                <Card key={item.id} className="bg-muted/30 mb-3">
-                  <CardContent className="py-3">
-                    <div className="grid grid-cols-12 gap-3">
-                      <div className="col-span-12 sm:col-span-4">
-                        <Label htmlFor={`food-name-${index}`} className="text-sm">Food Name</Label>
+                <Card key={item.id} className="bg-muted/30 mb-2">
+                  <CardContent className="p-2">
+                    <div className="grid grid-cols-12 gap-2">
+                      <div className="col-span-12 sm:col-span-4 grid gap-1">
+                        <Label htmlFor={`food-name-${index}`} className="text-xs">Food Name</Label>
                         <Input
                           id={`food-name-${index}`}
                           value={item.name}
@@ -220,10 +229,11 @@ const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProp
                             handleFoodItemChange(index, "name", e.target.value)
                           }
                           placeholder="e.g., Chicken Breast"
+                          className="h-7 text-sm"
                         />
                       </div>
-                      <div className="col-span-6 sm:col-span-2">
-                        <Label htmlFor={`calories-${index}`} className="text-sm">Calories</Label>
+                      <div className="col-span-3 sm:col-span-2 grid gap-1">
+                        <Label htmlFor={`calories-${index}`} className="text-xs">Calories</Label>
                         <Input
                           id={`calories-${index}`}
                           type="number"
@@ -236,10 +246,11 @@ const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProp
                             )
                           }
                           placeholder="0"
+                          className="h-7 text-sm"
                         />
                       </div>
-                      <div className="col-span-6 sm:col-span-2">
-                        <Label htmlFor={`protein-${index}`} className="text-sm">Protein (g)</Label>
+                      <div className="col-span-3 sm:col-span-2 grid gap-1">
+                        <Label htmlFor={`protein-${index}`} className="text-xs">Protein</Label>
                         <Input
                           id={`protein-${index}`}
                           type="number"
@@ -248,10 +259,11 @@ const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProp
                             handleFoodItemChange(index, "protein", e.target.value)
                           }
                           placeholder="0"
+                          className="h-7 text-sm"
                         />
                       </div>
-                      <div className="col-span-6 sm:col-span-2">
-                        <Label htmlFor={`carbs-${index}`} className="text-sm">Carbs (g)</Label>
+                      <div className="col-span-3 sm:col-span-2 grid gap-1">
+                        <Label htmlFor={`carbs-${index}`} className="text-xs">Carbs</Label>
                         <Input
                           id={`carbs-${index}`}
                           type="number"
@@ -260,10 +272,11 @@ const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProp
                             handleFoodItemChange(index, "carbs", e.target.value)
                           }
                           placeholder="0"
+                          className="h-7 text-sm"
                         />
                       </div>
-                      <div className="col-span-5 sm:col-span-1">
-                        <Label htmlFor={`fat-${index}`} className="text-sm">Fat (g)</Label>
+                      <div className="col-span-2 sm:col-span-1 grid gap-1">
+                        <Label htmlFor={`fat-${index}`} className="text-xs">Fat</Label>
                         <Input
                           id={`fat-${index}`}
                           type="number"
@@ -272,17 +285,19 @@ const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProp
                             handleFoodItemChange(index, "fat", e.target.value)
                           }
                           placeholder="0"
+                          className="h-7 text-sm"
                         />
                       </div>
                       <div className="col-span-1 flex items-end justify-end">
                         <Button
                           type="button"
                           variant="ghost"
-                          size="icon"
+                          size="sm"
                           onClick={() => handleRemoveFoodItem(index)}
                           disabled={foodItems.length === 1}
+                          className="h-7 w-7 p-0"
                         >
-                          <Trash2 className="h-4 w-4 text-destructive" />
+                          <Trash2 className="h-3 w-3 text-destructive" />
                         </Button>
                       </div>
                     </div>
@@ -292,53 +307,52 @@ const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProp
             </ScrollArea>
           </div>
 
-          {/* Notes */}
-          <div className="grid gap-2">
-            <Label htmlFor="meal-notes">Notes (optional)</Label>
+          <div className="grid grid-cols-1 gap-1 mt-1">
+            <Label htmlFor="meal-notes" className="text-xs">Notes (optional)</Label>
             <Textarea
               id="meal-notes"
               value={mealNotes}
               onChange={(e) => setMealNotes(e.target.value)}
-              placeholder="How did you feel after this meal? Any additional notes?"
-              className="resize-none"
-              rows={2}
+              placeholder="How did you feel after this meal?"
+              className="resize-none text-sm min-h-0"
+              rows={1}
             />
           </div>
 
-          <Card className="bg-primary/5">
-            <CardContent className="py-3">
-              <h3 className="text-base font-medium mb-2">Meal Summary</h3>
-              <div className="grid grid-cols-4 gap-4 text-center">
+          <Card className="bg-primary/5 mt-1">
+            <CardContent className="p-2">
+              <div className="grid grid-cols-4 gap-3 text-center">
                 <div>
-                  <p className="text-sm text-muted-foreground">Calories</p>
-                  <p className="text-lg font-bold">{totals.calories}</p>
+                  <p className="text-xs text-muted-foreground">Calories</p>
+                  <p className="text-base font-bold">{totals.calories}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Protein</p>
-                  <p className="text-lg font-bold">{totals.protein}g</p>
+                  <p className="text-xs text-muted-foreground">Protein</p>
+                  <p className="text-base font-bold">{totals.protein}g</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Carbs</p>
-                  <p className="text-lg font-bold">{totals.carbs}g</p>
+                  <p className="text-xs text-muted-foreground">Carbs</p>
+                  <p className="text-base font-bold">{totals.carbs}g</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Fat</p>
-                  <p className="text-lg font-bold">{totals.fat}g</p>
+                  <p className="text-xs text-muted-foreground">Fat</p>
+                  <p className="text-base font-bold">{totals.fat}g</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="pt-2">
           <Button
             variant="outline"
+            size="sm"
             onClick={() => onOpenChange && onOpenChange(false)}
           >
             Cancel
           </Button>
-          <Button onClick={handleSave}>
-            {mealToEdit ? "Update Meal" : "Save Meal"}
+          <Button size="sm" onClick={handleSave}>
+            {mealToEdit ? "Update" : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>
