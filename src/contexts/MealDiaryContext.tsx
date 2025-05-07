@@ -35,6 +35,9 @@ interface MealDiaryContextProps {
   getMealsByDate: (date: string) => MealEntry[];
   getDateRange: (startDate: string, endDate: string) => MealEntry[];
   getTotalCaloriesByDate: (date: string) => number;
+  getTotalProteinByDate: (date: string) => number;
+  getTotalCarbsByDate: (date: string) => number;
+  getTotalFatByDate: (date: string) => number;
 }
 
 // Sample data
@@ -331,6 +334,24 @@ export const MealDiaryProvider = ({ children }: MealDiaryProviderProps) => {
     return mealsOnDate.reduce((total, meal) => total + meal.calories, 0);
   };
 
+  // Calculate total protein for a specific date
+  const getTotalProteinByDate = (date: string) => {
+    const mealsOnDate = getMealsByDate(date);
+    return mealsOnDate.reduce((total, meal) => total + meal.items.reduce((sum, item) => sum + item.protein, 0), 0);
+  };
+
+  // Calculate total carbs for a specific date
+  const getTotalCarbsByDate = (date: string) => {
+    const mealsOnDate = getMealsByDate(date);
+    return mealsOnDate.reduce((total, meal) => total + meal.items.reduce((sum, item) => sum + item.carbs, 0), 0);
+  };
+
+  // Calculate total fat for a specific date
+  const getTotalFatByDate = (date: string) => {
+    const mealsOnDate = getMealsByDate(date);
+    return mealsOnDate.reduce((total, meal) => total + meal.items.reduce((sum, item) => sum + item.fat, 0), 0);
+  };
+
   return (
     <MealDiaryContext.Provider
       value={{
@@ -343,6 +364,9 @@ export const MealDiaryProvider = ({ children }: MealDiaryProviderProps) => {
         getMealsByDate,
         getDateRange,
         getTotalCaloriesByDate,
+        getTotalProteinByDate,
+        getTotalCarbsByDate,
+        getTotalFatByDate,
       }}
     >
       {children}

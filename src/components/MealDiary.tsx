@@ -37,7 +37,15 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import MealForm from "./MealForm";
 
 const MealDiary = () => {
-  const { mealsByDate, meals, getTotalCaloriesByDate, deleteMeal } = useMealDiary();
+  const { 
+    mealsByDate, 
+    meals, 
+    getTotalCaloriesByDate, 
+    getTotalProteinByDate,
+    getTotalCarbsByDate,
+    getTotalFatByDate,
+    deleteMeal 
+  } = useMealDiary();
   
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [mealDialogOpen, setMealDialogOpen] = useState(false);
@@ -48,6 +56,9 @@ const MealDiary = () => {
   const readableDate = format(selectedDate, "EEEE, MMMM d, yyyy");
   const mealsForSelectedDate = mealsByDate[formattedDate] || [];
   const totalCalories = getTotalCaloriesByDate(formattedDate);
+  const totalProtein = getTotalProteinByDate(formattedDate);
+  const totalCarbs = getTotalCarbsByDate(formattedDate);
+  const totalFat = getTotalFatByDate(formattedDate);
   
   const navigateDate = (direction: 'next' | 'prev') => {
     setSelectedDate(currentDate => 
@@ -145,7 +156,7 @@ const MealDiary = () => {
             <div>
               <CardTitle>Meal Diary</CardTitle>
               <CardDescription>
-                {readableDate} • {totalCalories} total calories
+                {readableDate} • {totalCalories} total calories • {totalProtein}g protein • {totalCarbs}g carbs • {totalFat}g fat
               </CardDescription>
             </div>
             <Badge variant="outline" className="font-normal px-3">
