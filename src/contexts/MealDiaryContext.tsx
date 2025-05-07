@@ -96,6 +96,175 @@ const initialMeals: MealEntry[] = [
       { id: "4-3", name: "Handful of almonds", calories: 35, protein: 2, carbs: 1, fat: 3 },
     ]
   },
+  {
+    id: "5",
+    name: "Lunch",
+    date: "2025-05-04",
+    time: "1:15 PM",
+    mealType: "lunch",
+    calories: 550,
+    items: [
+      { id: "5-1", name: "Turkey sandwich", calories: 320, protein: 28, carbs: 30, fat: 10 },
+      { id: "5-2", name: "Mixed greens salad", calories: 70, protein: 2, carbs: 8, fat: 3 },
+      { id: "5-3", name: "Balsamic vinaigrette", calories: 60, protein: 0, carbs: 3, fat: 6 },
+      { id: "5-4", name: "Sparkling water", calories: 0, protein: 0, carbs: 0, fat: 0 },
+    ]
+  },
+  {
+    id: "6",
+    name: "Afternoon Snack",
+    date: "2025-05-04",
+    time: "3:45 PM",
+    mealType: "snack",
+    calories: 210,
+    items: [
+      { id: "6-1", name: "Greek yogurt", calories: 120, protein: 15, carbs: 7, fat: 0 },
+      { id: "6-2", name: "Honey", calories: 40, protein: 0, carbs: 10, fat: 0 },
+      { id: "6-3", name: "Mixed berries", calories: 50, protein: 1, carbs: 12, fat: 0 },
+    ],
+    notes: "Perfect pre-workout energy boost"
+  },
+  {
+    id: "7",
+    name: "Dinner",
+    date: "2025-05-04",
+    time: "7:30 PM",
+    mealType: "dinner",
+    calories: 720,
+    items: [
+      { id: "7-1", name: "Grilled steak", calories: 350, protein: 40, carbs: 0, fat: 18 },
+      { id: "7-2", name: "Sweet potato", calories: 180, protein: 2, carbs: 40, fat: 0 },
+      { id: "7-3", name: "Asparagus", calories: 40, protein: 4, carbs: 6, fat: 0 },
+      { id: "7-4", name: "Olive oil", calories: 120, protein: 0, carbs: 0, fat: 14 },
+      { id: "7-5", name: "Glass of red wine", calories: 120, protein: 0, carbs: 4, fat: 0 },
+    ]
+  },
+  {
+    id: "8",
+    name: "Breakfast",
+    date: "2025-05-05",
+    time: "7:45 AM",
+    mealType: "breakfast",
+    calories: 520,
+    items: [
+      { id: "8-1", name: "Scrambled eggs", calories: 210, protein: 18, carbs: 2, fat: 14 },
+      { id: "8-2", name: "Whole grain toast", calories: 120, protein: 5, carbs: 22, fat: 2 },
+      { id: "8-3", name: "Avocado spread", calories: 100, protein: 1, carbs: 5, fat: 9 },
+      { id: "8-4", name: "Orange juice", calories: 90, protein: 1, carbs: 21, fat: 0 },
+    ],
+    notes: "High protein breakfast before morning meeting"
+  },
+  {
+    id: "9",
+    name: "Morning Snack",
+    date: "2025-05-05",
+    time: "10:30 AM",
+    mealType: "snack",
+    calories: 180,
+    items: [
+      { id: "9-1", name: "Apple", calories: 90, protein: 0, carbs: 22, fat: 0 },
+      { id: "9-2", name: "Peanut butter", calories: 90, protein: 4, carbs: 3, fat: 7 },
+    ]
+  },
+  {
+    id: "10",
+    name: "Lunch",
+    date: "2025-05-05",
+    time: "12:30 PM",
+    mealType: "lunch",
+    calories: 650,
+    items: [
+      { id: "10-1", name: "Quinoa bowl", calories: 280, protein: 10, carbs: 45, fat: 6 },
+      { id: "10-2", name: "Grilled chicken", calories: 200, protein: 28, carbs: 0, fat: 8 },
+      { id: "10-3", name: "Roasted vegetables", calories: 100, protein: 3, carbs: 18, fat: 2 },
+      { id: "10-4", name: "Tahini dressing", calories: 70, protein: 2, carbs: 1, fat: 6 },
+    ],
+    notes: "Meal prepped this on Sunday - so convenient!"
+  },
+  {
+    id: "11",
+    name: "Dinner",
+    date: "2025-05-05",
+    time: "6:45 PM",
+    mealType: "dinner",
+    calories: 680,
+    items: [
+      { id: "11-1", name: "Shrimp pasta", calories: 420, protein: 25, carbs: 55, fat: 10 },
+      { id: "11-2", name: "Caesar salad", calories: 160, protein: 6, carbs: 8, fat: 12 },
+      { id: "11-3", name: "Garlic bread", calories: 100, protein: 3, carbs: 15, fat: 3 },
+    ]
+  },
+  {
+    id: "12",
+    name: "Breakfast",
+    date: "2025-05-06",
+    time: "8:00 AM",
+    mealType: "breakfast",
+    calories: 480,
+    items: [
+      { id: "12-1", name: "Protein pancakes", calories: 320, protein: 20, carbs: 40, fat: 8 },
+      { id: "12-2", name: "Maple syrup", calories: 80, protein: 0, carbs: 20, fat: 0 },
+      { id: "12-3", name: "Fresh strawberries", calories: 45, protein: 1, carbs: 10, fat: 0 },
+      { id: "12-4", name: "Coffee with almond milk", calories: 35, protein: 1, carbs: 2, fat: 2.5 },
+    ]
+  },
+  {
+    id: "13",
+    name: "Lunch",
+    date: "2025-05-06",
+    time: "1:00 PM",
+    mealType: "lunch",
+    calories: 590,
+    items: [
+      { id: "13-1", name: "Tuna wrap", calories: 350, protein: 30, carbs: 28, fat: 12 },
+      { id: "13-2", name: "Vegetable soup", calories: 120, protein: 5, carbs: 18, fat: 2 },
+      { id: "13-3", name: "Crackers", calories: 80, protein: 2, carbs: 15, fat: 1 },
+      { id: "13-4", name: "Apple", calories: 90, protein: 0, carbs: 22, fat: 0 },
+    ]
+  },
+  {
+    id: "14",
+    name: "Afternoon Snack",
+    date: "2025-05-06",
+    time: "4:00 PM",
+    mealType: "snack",
+    calories: 250,
+    items: [
+      { id: "14-1", name: "Protein bar", calories: 180, protein: 15, carbs: 20, fat: 6 },
+      { id: "14-2", name: "Green tea", calories: 0, protein: 0, carbs: 0, fat: 0 },
+      { id: "14-3", name: "Tangerine", calories: 70, protein: 1, carbs: 18, fat: 0 },
+    ],
+    notes: "Quick snack before gym session"
+  },
+  {
+    id: "15",
+    name: "Post-Workout Dinner",
+    date: "2025-05-06",
+    time: "7:45 PM",
+    mealType: "dinner",
+    calories: 780,
+    items: [
+      { id: "15-1", name: "Baked chicken breast", calories: 250, protein: 42, carbs: 0, fat: 6 },
+      { id: "15-2", name: "Quinoa", calories: 170, protein: 6, carbs: 30, fat: 3 },
+      { id: "15-3", name: "Roasted Brussels sprouts", calories: 120, protein: 4, carbs: 12, fat: 7 },
+      { id: "15-4", name: "Sweet potato", calories: 180, protein: 2, carbs: 40, fat: 0 },
+      { id: "15-5", name: "Olive oil", calories: 60, protein: 0, carbs: 0, fat: 7 },
+    ],
+    notes: "Hit my protein goal with this meal"
+  },
+  {
+    id: "16",
+    name: "Breakfast",
+    date: "2025-05-07",
+    time: "8:15 AM",
+    mealType: "breakfast",
+    calories: 420,
+    items: [
+      { id: "16-1", name: "Avocado toast", calories: 280, protein: 8, carbs: 30, fat: 15 },
+      { id: "16-2", name: "Fried egg", calories: 90, protein: 7, carbs: 0, fat: 7 },
+      { id: "16-3", name: "Fruit smoothie", calories: 150, protein: 2, carbs: 35, fat: 0 },
+    ]
+  }
 ];
 
 // Create the context
