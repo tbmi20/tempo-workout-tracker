@@ -7,10 +7,12 @@ import SummaryCards from "./SummaryCards";
 import WorkoutForm from "./WorkoutForm";
 import WorkoutTemplateForm from "./WorkoutTemplateForm";
 import MealForm from "./MealForm";
+import MealDiary from "./MealDiary";
 import ProgressCharts from "./ProgressCharts";
 import WorkoutDetailDialog from "./WorkoutDetailDialog";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { MealDiaryProvider } from "@/contexts/MealDiaryContext";
 
 const Home = () => {
   const [workoutDialogOpen, setWorkoutDialogOpen] = useState(false);
@@ -27,11 +29,6 @@ const Home = () => {
   const handleSaveTemplate = (template: any) => {
     console.log("Template saved:", template);
     // Here you would typically save the template data to your database
-  };
-
-  const handleSaveMeal = (meal: any) => {
-    console.log("Meal saved:", meal);
-    // Here you would typically save the meal data to your database
   };
 
   const handleViewWorkoutDetails = (workout: any) => {
@@ -111,61 +108,6 @@ const Home = () => {
     },
   ];
 
-  // Sample meal history data
-  const mealHistory = [
-    {
-      id: 1,
-      name: "Breakfast",
-      date: "May 4, 2025",
-      time: "8:30 AM",
-      calories: 450,
-      items: [
-        { name: "Oatmeal with berries", calories: 280 },
-        { name: "Greek yogurt", calories: 120 },
-        { name: "Black coffee", calories: 5 },
-        { name: "Almond butter", calories: 45 },
-      ],
-    },
-    {
-      id: 2,
-      name: "Lunch",
-      date: "May 3, 2025",
-      time: "12:45 PM",
-      calories: 620,
-      items: [
-        { name: "Grilled chicken salad", calories: 320 },
-        { name: "Whole grain bread", calories: 120 },
-        { name: "Olive oil dressing", calories: 90 },
-        { name: "Apple", calories: 90 },
-      ],
-    },
-    {
-      id: 3,
-      name: "Dinner",
-      date: "May 3, 2025",
-      time: "7:00 PM",
-      calories: 580,
-      items: [
-        { name: "Salmon fillet", calories: 280 },
-        { name: "Brown rice", calories: 150 },
-        { name: "Steamed broccoli", calories: 50 },
-        { name: "Avocado", calories: 100 },
-      ],
-    },
-    {
-      id: 4,
-      name: "Post-workout Snack",
-      date: "May 3, 2025",
-      time: "4:15 PM",
-      calories: 320,
-      items: [
-        { name: "Protein shake", calories: 180 },
-        { name: "Banana", calories: 105 },
-        { name: "Handful of almonds", calories: 35 },
-      ],
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-background p-6">
       <header className="mb-8">
@@ -205,209 +147,158 @@ const Home = () => {
         onSave={handleSaveTemplate}
       />
 
-      <MealForm
-        open={mealDialogOpen}
-        onOpenChange={setMealDialogOpen}
-        onSave={handleSaveMeal}
-      />
+      <MealDiaryProvider>
+        <MealForm
+          open={mealDialogOpen}
+          onOpenChange={setMealDialogOpen}
+          mealToEdit={null}
+        />
 
-      <WorkoutDetailDialog
-        open={detailDialogOpen}
-        onOpenChange={setDetailDialogOpen}
-        workout={selectedWorkout}
-      />
+        <WorkoutDetailDialog
+          open={detailDialogOpen}
+          onOpenChange={setDetailDialogOpen}
+          workout={selectedWorkout}
+        />
 
-      <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="dashboard" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Dashboard
-          </TabsTrigger>
-          <TabsTrigger value="workouts" className="flex items-center gap-2">
-            <Dumbbell className="h-4 w-4" />
-            Workouts
-          </TabsTrigger>
-          <TabsTrigger value="meals" className="flex items-center gap-2">
-            <Utensils className="h-4 w-4" />
-            Meals
-          </TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="dashboard" className="w-full">
+          <TabsList className="mb-6">
+            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="workouts" className="flex items-center gap-2">
+              <Dumbbell className="h-4 w-4" />
+              Workouts
+            </TabsTrigger>
+            <TabsTrigger value="meals" className="flex items-center gap-2">
+              <Utensils className="h-4 w-4" />
+              Meals
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="dashboard" className="space-y-6">
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">Today's Summary</h2>
-            <SummaryCards />
-          </section>
+          <TabsContent value="dashboard" className="space-y-6">
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">Today's Summary</h2>
+              <SummaryCards />
+            </section>
 
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-semibold">Your Progress</h2>
-            </div>
-            <ProgressCharts />
-          </section>
-        </TabsContent>
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-semibold">Your Progress</h2>
+              </div>
+              <ProgressCharts />
+            </section>
+          </TabsContent>
 
-        <TabsContent value="workouts" className="space-y-6">
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-semibold">Workout Templates</h2>
-              <Button 
-                className="flex items-center gap-2"
-                onClick={() => setTemplateDialogOpen(true)}
-              >
-                <PlusCircle className="h-4 w-4" />
-                <span>Add Template</span>
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {workoutTemplates.map((template) => (
-                <Card key={template.id} className="overflow-hidden">
-                  <CardHeader className="bg-secondary/5 pb-2">
-                    <div className="flex justify-between items-start">
-                      <CardTitle>{template.name}</CardTitle>
-                      <div className="flex gap-1">
+          <TabsContent value="workouts" className="space-y-6">
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-semibold">Workout Templates</h2>
+                <Button 
+                  className="flex items-center gap-2"
+                  onClick={() => setTemplateDialogOpen(true)}
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  <span>Add Template</span>
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {workoutTemplates.map((template) => (
+                  <Card key={template.id} className="overflow-hidden">
+                    <CardHeader className="bg-secondary/5 pb-2">
+                      <div className="flex justify-between items-start">
+                        <CardTitle>{template.name}</CardTitle>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon">
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <CardDescription>
+                        {template.exercises.length} exercises
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-4 h-[180px] overflow-y-auto">
+                      <div className="space-y-2">
+                        {template.exercises.map((exercise, index) => (
+                          <div key={index} className="flex justify-between text-sm">
+                            <span className="font-medium">{exercise.name}</span>
+                            <Badge variant="outline">{exercise.sets} sets</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-between">
+                      <Button variant="outline" size="sm">
+                        <Copy className="h-3 w-3 mr-1" /> Use Template
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        View Details
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-semibold">Workout History</h2>
+                <Button 
+                  className="flex items-center gap-2"
+                  onClick={() => setWorkoutDialogOpen(true)}
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  <span>Add Workout</span>
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {workoutHistory.map((workout) => (
+                  <Card key={workout.id} className="overflow-hidden">
+                    <CardHeader className="bg-primary/5 pb-2">
+                      <div className="flex justify-between items-start">
+                        <CardTitle>{workout.name}</CardTitle>
                         <Button variant="ghost" size="icon">
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon">
-                          <Copy className="h-4 w-4" />
-                        </Button>
                       </div>
-                    </div>
-                    <CardDescription>
-                      {template.exercises.length} exercises
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4 h-[180px] overflow-y-auto">
-                    <div className="space-y-2">
-                      {template.exercises.map((exercise, index) => (
-                        <div key={index} className="flex justify-between text-sm">
-                          <span className="font-medium">{exercise.name}</span>
-                          <Badge variant="outline">{exercise.sets} sets</Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-between">
-                    <Button variant="outline" size="sm">
-                      <Copy className="h-3 w-3 mr-1" /> Use Template
-                    </Button>
-                    <Button variant="ghost" size="sm">
-                      View Details
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-semibold">Workout History</h2>
-              <Button 
-                className="flex items-center gap-2"
-                onClick={() => setWorkoutDialogOpen(true)}
-              >
-                <PlusCircle className="h-4 w-4" />
-                <span>Add Workout</span>
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {workoutHistory.map((workout) => (
-                <Card key={workout.id} className="overflow-hidden">
-                  <CardHeader className="bg-primary/5 pb-2">
-                    <div className="flex justify-between items-start">
-                      <CardTitle>{workout.name}</CardTitle>
-                      <Button variant="ghost" size="icon">
-                        <Edit className="h-4 w-4" />
+                      <CardDescription className="flex items-center gap-2">
+                        <Calendar className="h-3 w-3" /> {workout.date}
+                        <span className="mx-1">•</span>
+                        <Clock className="h-3 w-3" /> {workout.duration}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-4 h-[180px] overflow-y-auto">
+                      <div className="space-y-2">
+                        {workout.exercises.map((exercise, index) => (
+                          <div key={index} className="flex justify-between text-sm">
+                            <span className="font-medium">{exercise.name}</span>
+                            <span className="text-muted-foreground">
+                              {exercise.sets} sets × {exercise.reps} reps × {exercise.weight > 0 ? `${exercise.weight} lbs` : 'BW'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-end">
+                      <Button variant="ghost" size="sm" onClick={() => handleViewWorkoutDetails(workout)}>
+                        View Details
                       </Button>
-                    </div>
-                    <CardDescription className="flex items-center gap-2">
-                      <Calendar className="h-3 w-3" /> {workout.date}
-                      <span className="mx-1">•</span>
-                      <Clock className="h-3 w-3" /> {workout.duration}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4 h-[180px] overflow-y-auto">
-                    <div className="space-y-2">
-                      {workout.exercises.map((exercise, index) => (
-                        <div key={index} className="flex justify-between text-sm">
-                          <span className="font-medium">{exercise.name}</span>
-                          <span className="text-muted-foreground">
-                            {exercise.sets} sets × {exercise.reps} reps × {exercise.weight > 0 ? `${exercise.weight} lbs` : 'BW'}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-end">
-                    <Button variant="ghost" size="sm" onClick={() => handleViewWorkoutDetails(workout)}>
-                      View Details
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </section>
-        </TabsContent>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            </section>
+          </TabsContent>
 
-        <TabsContent value="meals" className="space-y-6">
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-semibold">Meal History</h2>
-              <Button 
-                className="flex items-center gap-2"
-                onClick={() => setMealDialogOpen(true)}
-              >
-                <PlusCircle className="h-4 w-4" />
-                <span>Log Meal</span>
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {mealHistory.map((meal) => (
-                <Card key={meal.id} className="overflow-hidden">
-                  <CardHeader className="bg-green-50 pb-2">
-                    <div className="flex justify-between items-start">
-                      <CardTitle>{meal.name}</CardTitle>
-                      <Button variant="ghost" size="icon">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <CardDescription className="flex items-center gap-2">
-                      <Calendar className="h-3 w-3" /> {meal.date}
-                      <span className="mx-1">•</span>
-                      <Clock className="h-3 w-3" /> {meal.time}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4 h-[180px] overflow-y-auto">
-                    <div className="mb-3">
-                      <Badge variant="secondary">{meal.calories} calories</Badge>
-                    </div>
-                    <div className="space-y-2">
-                      {meal.items.map((item, index) => (
-                        <div key={index} className="flex justify-between text-sm">
-                          <span className="font-medium">{item.name}</span>
-                          <span className="text-muted-foreground">
-                            {item.calories} cal
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-between">
-                    <Button variant="outline" size="sm">
-                      Track Again
-                    </Button>
-                    <Button variant="ghost" size="sm">
-                      View Details
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </section>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="meals" className="space-y-6">
+            <MealDiary />
+          </TabsContent>
+        </Tabs>
+      </MealDiaryProvider>
     </div>
   );
 };
