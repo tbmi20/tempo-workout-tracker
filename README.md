@@ -23,6 +23,7 @@ Tempo Workout Tracker is a comprehensive fitness application that helps users ma
 - **Backend**: Supabase (PostgreSQL database)
 - **Authentication**: Supabase Auth
 - **Icons**: Lucide React
+- **Toast Notifications**: Shadcn UI toasts for user feedback
 - **Testing**: Playwright with MCP (Model Context Protocol) server
 
 ## Project Structure
@@ -37,10 +38,11 @@ Tempo Workout Tracker is a comprehensive fitness application that helps users ma
     - `MealDiary.tsx`: Component for viewing meal history
     - `ProgressCharts.tsx`: Animated charts for visualizing progress
     - `SummaryCards.tsx`: Daily summary statistics with animated counters
+    - `WorkoutDetailDialog.tsx`: Detailed view of individual workouts
   - `/contexts`: React contexts for state management
     - `MealDiaryContext.tsx`: Context for meal diary state management
   - `/lib`: Utility functions
-    - `supabase.ts`: Supabase client and API services
+    - `supabase.ts`: Supabase client and API services with workout, meal, and template functionality
     - `utils.ts`: Utility functions
   - `/types`: TypeScript type definitions
     - `supabase.ts`: TypeScript definitions for Supabase database schema
@@ -59,12 +61,15 @@ Tempo Workout Tracker is a comprehensive fitness application that helps users ma
 - Create and manage reusable workout templates
 - View workout history with animated cards
 - Real-time synchronization with Supabase database
+- Edit, delete, and view detailed workout information
+- Copy templates to create variations of established routines
 
 ### Nutrition Tracking
 - Log meals with food items, calories, and macronutrients
 - Track daily caloric intake and macronutrient distribution
 - Categorize meals by type (breakfast, lunch, dinner, snacks)
 - Persistent storage in Supabase database
+- Delete meal entries when needed
 
 ### Progress Visualization
 - View fitness progress through interactive animated charts
@@ -77,23 +82,52 @@ Tempo Workout Tracker is a comprehensive fitness application that helps users ma
 - Quick access to workout and meal logging
 - Beautiful GSAP animations for a polished user experience
 
+### Template Management
+- Create custom workout templates with specific exercises
+- Edit existing templates to refine your routines
+- Copy templates to create variations
+- Convert templates into actual workouts with a single click
+- Organize exercise routines for efficient workout planning
+
 ### Beautiful UI Animations
 - GSAP-powered entrance animations for cards and elements
 - Animated number counters for statistics
 - Smooth transitions between tabs and sections
 - Interactive chart animations
 - Elastic and bounce effects for an engaging user interface
+- Toast notifications with subtle animations for user feedback
+
+### User Feedback
+- Comprehensive toast notification system for all user actions
+- Clear feedback on successful operations
+- Error notifications when operations fail
+- Animated toast components that don't interrupt the user experience
 
 ### Robust Backend Infrastructure
 - Secure PostgreSQL database with Supabase
 - Row-level security policies for data protection
-- Comprehensive database schema for workouts, exercises, and meals
+- Comprehensive database schema for workouts, exercises, meals, and templates
 - TypeScript integration with auto-generated types
+- Real-time synchronization between UI and database
 
 ### Testing Infrastructure
 - Playwright testing setup for automated UI testing
 - Model Context Protocol (MCP) server for programmatic app control
 - Test recording capabilities for debugging
+
+## Interactive UI Elements
+
+All interactive elements in the application are fully functional:
+
+- **Add Workout Button**: Opens the workout form dialog to log a new workout
+- **Log Meal Button**: Opens the meal form dialog to record nutritional intake
+- **Add Template Button**: Opens the template form to create workout templates
+- **Edit Buttons**: Allow editing of existing workouts and templates
+- **Delete Buttons**: Remove workouts, templates, or meals with confirmation
+- **Copy Button**: Duplicates workout templates for easy variations
+- **Use Template Button**: Converts a template into an actual workout
+- **View Details Buttons**: Shows comprehensive information about workouts
+- **Tab Navigation**: Switch between Dashboard, Workouts, and Meals views
 
 ## Getting Started
 
@@ -127,6 +161,8 @@ The application uses Supabase as a backend. The database includes the following 
 - `workouts` - Workout sessions tracking
 - `exercises` - Individual exercises within workouts
 - `meals` - Meal and nutrition tracking
+- `workout_templates` - Reusable workout templates
+- `template_exercises` - Exercises associated with templates
 
 ### Automated Testing
 
@@ -169,7 +205,11 @@ The project includes several configuration files:
 - Advanced workout analytics
 - Personalized training recommendations
 - Mobile app with React Native
+- Enhanced data visualization
+- Workout plan scheduling
+- Achievement badges and gamification
+- Integration with fitness wearables
 
 ---
 
-**Note**: This README provides the key information needed to understand the Tempo Workout Tracker application. The application combines beautiful GSAP animations with a robust Supabase backend for a complete fitness tracking experience.
+**Note**: This README provides the key information needed to understand the Tempo Workout Tracker application. The application combines beautiful GSAP animations with a robust Supabase backend for a complete fitness tracking experience. All buttons and interactive elements are fully functional and connected to the Supabase database.

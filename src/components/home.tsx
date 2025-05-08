@@ -14,7 +14,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { MealDiaryProvider } from "@/contexts/MealDiaryContext";
 import gsap from "gsap";
-import { workoutService, mealService } from "@/lib/supabase";
+import { workoutService, mealService, templateService } from "@/lib/supabase";
+import { toast } from "@/components/ui/use-toast";
 
 const Home = () => {
   const [workoutDialogOpen, setWorkoutDialogOpen] = useState(false);
@@ -23,7 +24,12 @@ const Home = () => {
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [selectedWorkout, setSelectedWorkout] = useState<any>(null);
   const [workouts, setWorkouts] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<any[]>([]);
   const [meals, setMeals] = useState<any[]>([]);
+  
+  // State for editing
+  const [editingWorkout, setEditingWorkout] = useState<any>(null);
+  const [editingTemplate, setEditingTemplate] = useState<any>(null);
   
   // Refs for animation targets
   const headerRef = useRef<HTMLDivElement>(null);
@@ -40,11 +46,20 @@ const Home = () => {
         const workoutData = await workoutService.getWorkouts();
         setWorkouts(workoutData || []);
         
+        // Fetch workout templates
+        const templateData = await templateService.getTemplates();
+        setTemplates(templateData || []);
+        
         // Fetch meals
         const mealData = await mealService.getMeals();
         setMeals(mealData || []);
       } catch (error) {
         console.error("Error loading data:", error);
+        toast({
+          title: "Error loading data",
+          description: "Could not load your data. Please try again later.",
+          variant: "destructive",
+        });
       }
     };
     
@@ -114,10 +129,39 @@ const Home = () => {
 
   const handleSaveWorkout = async (workout: any) => {
     try {
-      const savedWorkout = await workoutService.addWorkout(workout);
-      console.log("Workout saved:", savedWorkout);
-      // Update local state
-      setWorkouts([savedWorkout, ...workouts]);
+      let savedWorkout;
+      
+      // Check if we're editing an existing workout
+      if (editingWorkout) {
+        savedWorkout = await workoutService.updateWorkout(editingWorkout.id, {
+          ...workout,
+          completed_at: new Date(workout.date).toISOString()
+        });
+        
+        // Update the workout in the existing array
+        setWorkouts(workouts.map(w => w.id === editingWorkout.id ? savedWorkout : w));
+        setEditingWorkout(null); // Clear editing state
+        
+        toast({
+          title: "Workout updated",
+          description: "Your workout has been updated successfully.",
+        });
+      } else {
+        // Create a new workout
+        savedWorkout = await workoutService.addWorkout({
+          name: workout.exercises[0]?.name || "Workout",
+          exercises: workout.exercises,
+          completed_at: new Date(workout.date).toISOString()
+        });
+        
+        // Add new workout to the array
+        setWorkouts([savedWorkout, ...workouts]);
+        
+        toast({
+          title: "Workout added",
+          description: "Your workout has been saved successfully.",
+        });
+      }
       
       // Animate the new workout card appearing
       gsap.fromTo(
@@ -137,13 +181,42 @@ const Home = () => {
       );
     } catch (error) {
       console.error("Error saving workout:", error);
+      toast({
+        title: "Error saving workout",
+        description: "Something went wrong while saving your workout.",
+        variant: "destructive",
+      });
     }
   };
 
   const handleSaveTemplate = async (template: any) => {
     try {
-      // In a real app, you would save this to Supabase
-      console.log("Template saved:", template);
+      let savedTemplate;
+      
+      // Check if we're editing an existing template
+      if (editingTemplate) {
+        savedTemplate = await templateService.updateTemplate(editingTemplate.id, template);
+        
+        // Update the template in the existing array
+        setTemplates(templates.map(t => t.id === editingTemplate.id ? savedTemplate : t));
+        setEditingTemplate(null); // Clear editing state
+        
+        toast({
+          title: "Template updated",
+          description: "Your workout template has been updated successfully.",
+        });
+      } else {
+        // Create a new template
+        savedTemplate = await templateService.addTemplate(template);
+        
+        // Add new template to the array
+        setTemplates([savedTemplate, ...templates]);
+        
+        toast({
+          title: "Template created",
+          description: "Your workout template has been saved successfully.",
+        });
+      }
       
       // Animate the new template card appearing
       gsap.fromTo(
@@ -163,6 +236,11 @@ const Home = () => {
       );
     } catch (error) {
       console.error("Error saving template:", error);
+      toast({
+        title: "Error saving template",
+        description: "Something went wrong while saving your workout template.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -171,8 +249,18 @@ const Home = () => {
       const savedMeal = await mealService.addMeal(meal);
       // Update local state
       setMeals([savedMeal, ...meals]);
+      
+      toast({
+        title: "Meal logged",
+        description: "Your meal has been logged successfully.",
+      });
     } catch (error) {
       console.error("Error saving meal:", error);
+      toast({
+        title: "Error logging meal",
+        description: "Something went wrong while logging your meal.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -190,77 +278,97 @@ const Home = () => {
     }, 100);
   };
 
-  // Sample workout history data
-  const workoutHistory = [
-    {
-      id: 1,
-      name: "Upper Body Strength",
-      date: "May 3, 2025",
-      duration: "45 min",
-      exercises: [
-        { name: "Bench Press", sets: 3, reps: 10, weight: 135 },
-        { name: "Pull-ups", sets: 4, reps: 8, weight: 0 },
-        { name: "Shoulder Press", sets: 3, reps: 12, weight: 65 },
-      ],
-    },
-    {
-      id: 2,
-      name: "Leg Day",
-      date: "May 1, 2025",
-      duration: "55 min",
-      exercises: [
-        { name: "Squats", sets: 4, reps: 8, weight: 185 },
-        { name: "Lunges", sets: 3, reps: 12, weight: 65 },
-        { name: "Leg Press", sets: 3, reps: 10, weight: 220 },
-      ],
-    },
-    {
-      id: 3,
-      name: "Core and Cardio",
-      date: "April 29, 2025",
-      duration: "35 min",
-      exercises: [
-        { name: "Plank", sets: 3, reps: 60, weight: 0 },
-        { name: "Mountain Climbers", sets: 3, reps: 30, weight: 0 },
-        { name: "Jump Rope", sets: 3, reps: 100, weight: 0 },
-      ],
-    },
-  ];
+  const handleEditWorkout = (workout: any) => {
+    setEditingWorkout(workout);
+    setWorkoutDialogOpen(true);
+  };
 
-  // Sample workout templates data
-  const workoutTemplates = [
-    {
-      id: 1,
-      name: "Upper Body Day",
-      exercises: [
-        { name: "Bench Press", sets: 4 },
-        { name: "Pull-ups", sets: 4 },
-        { name: "Shoulder Press", sets: 3 },
-        { name: "Bicep Curls", sets: 3 },
-        { name: "Tricep Extensions", sets: 3 },
-      ],
-    },
-    {
-      id: 2,
-      name: "Lower Body Day",
-      exercises: [
-        { name: "Squats", sets: 5 },
-        { name: "Lunges", sets: 3 },
-        { name: "Deadlift", sets: 4 },
-        { name: "Leg Press", sets: 3 },
-      ],
-    },
-    {
-      id: 3,
-      name: "Full Body Workout",
-      exercises: [
-        { name: "Push-ups", sets: 3 },
-        { name: "Pull-ups", sets: 3 },
-        { name: "Squats", sets: 3 },
-        { name: "Plank", sets: 3 },
-      ],
-    },
-  ];
+  const handleEditTemplate = (template: any) => {
+    setEditingTemplate(template);
+    setTemplateDialogOpen(true);
+  };
+
+  const handleCopyTemplate = async (template: any) => {
+    try {
+      // Create a copy with a new name
+      const newTemplate = {
+        name: `${template.name} (Copy)`,
+        exercises: template.template_exercises || []
+      };
+      
+      const savedTemplate = await templateService.addTemplate(newTemplate);
+      setTemplates([savedTemplate, ...templates]);
+      
+      toast({
+        title: "Template copied",
+        description: "Your workout template has been duplicated.",
+      });
+    } catch (error) {
+      console.error("Error copying template:", error);
+      toast({
+        title: "Error copying template",
+        description: "Something went wrong while copying your template.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUseTemplate = async (template: any) => {
+    try {
+      const newWorkout = await templateService.useTemplate(template.id);
+      setWorkouts([newWorkout, ...workouts]);
+      
+      toast({
+        title: "Workout started",
+        description: "A new workout has been created from your template.",
+      });
+    } catch (error) {
+      console.error("Error using template:", error);
+      toast({
+        title: "Error starting workout",
+        description: "Something went wrong while creating a workout from your template.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteWorkout = async (id: string) => {
+    try {
+      await workoutService.deleteWorkout(id);
+      setWorkouts(workouts.filter(workout => workout.id !== id));
+      
+      toast({
+        title: "Workout deleted",
+        description: "Your workout has been deleted successfully.",
+      });
+    } catch (error) {
+      console.error("Error deleting workout:", error);
+      toast({
+        title: "Error deleting workout",
+        description: "Something went wrong while deleting your workout.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteTemplate = async (id: string) => {
+    try {
+      await templateService.deleteTemplate(id);
+      setTemplates(templates.filter(template => template.id !== id));
+      
+      toast({
+        title: "Template deleted",
+        description: "Your workout template has been deleted successfully.",
+      });
+    } catch (error) {
+      console.error("Error deleting template:", error);
+      toast({
+        title: "Error deleting template",
+        description: "Something went wrong while deleting your template.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -271,7 +379,10 @@ const Home = () => {
             <Button 
               variant="outline" 
               className="flex items-center gap-2 add-workout-btn"
-              onClick={() => setWorkoutDialogOpen(true)}
+              onClick={() => {
+                setEditingWorkout(null); // Ensure we're not in edit mode
+                setWorkoutDialogOpen(true);
+              }}
               data-testid="add-workout-button"
             >
               <PlusCircle className="h-4 w-4" />
@@ -295,12 +406,17 @@ const Home = () => {
         open={workoutDialogOpen}
         onOpenChange={setWorkoutDialogOpen}
         onSave={handleSaveWorkout}
+        initialWorkout={editingWorkout}
       />
 
       <WorkoutTemplateForm
         open={templateDialogOpen}
-        onOpenChange={setTemplateDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) setEditingTemplate(null);
+          setTemplateDialogOpen(open);
+        }}
         onSave={handleSaveTemplate}
+        initialTemplate={editingTemplate}
       />
 
       <MealDiaryProvider>
@@ -357,34 +473,45 @@ const Home = () => {
                 <h2 className="text-2xl font-semibold">Workout Templates</h2>
                 <Button 
                   className="flex items-center gap-2"
-                  onClick={() => setTemplateDialogOpen(true)}
+                  onClick={() => {
+                    setEditingTemplate(null); // Ensure we're not in edit mode
+                    setTemplateDialogOpen(true);
+                  }}
                 >
                   <PlusCircle className="h-4 w-4" />
                   <span>Add Template</span>
                 </Button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" ref={templateCardsRef}>
-                {workoutTemplates.map((template, index) => (
+                {templates.map((template) => (
                   <Card key={template.id} className="overflow-hidden template-card animate-card">
                     <CardHeader className="bg-secondary/5 pb-2">
                       <div className="flex justify-between items-start">
                         <CardTitle>{template.name}</CardTitle>
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="icon">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => handleEditTemplate(template)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => handleCopyTemplate(template)}
+                          >
                             <Copy className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
                       <CardDescription>
-                        {template.exercises.length} exercises
+                        {template.template_exercises?.length || 0} exercises
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-4 h-[180px] overflow-y-auto">
                       <div className="space-y-2">
-                        {template.exercises.map((exercise, index) => (
+                        {template.template_exercises?.map((exercise: any, index: number) => (
                           <div key={index} className="flex justify-between text-sm">
                             <span className="font-medium">{exercise.name}</span>
                             <Badge variant="outline">{exercise.sets} sets</Badge>
@@ -393,15 +520,29 @@ const Home = () => {
                       </div>
                     </CardContent>
                     <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-between">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleUseTemplate(template)}
+                      >
                         <Copy className="h-3 w-3 mr-1" /> Use Template
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleEditTemplate(template)}
+                      >
                         View Details
                       </Button>
                     </CardFooter>
                   </Card>
                 ))}
+
+                {templates.length === 0 && (
+                  <div className="col-span-full text-center py-8 border rounded-lg bg-muted/20">
+                    <p className="text-muted-foreground">No workout templates yet. Create your first template!</p>
+                  </div>
+                )}
               </div>
             </section>
 
@@ -410,41 +551,58 @@ const Home = () => {
                 <h2 className="text-2xl font-semibold">Workout History</h2>
                 <Button 
                   className="flex items-center gap-2"
-                  onClick={() => setWorkoutDialogOpen(true)}
+                  onClick={() => {
+                    setEditingWorkout(null); // Ensure we're not in edit mode
+                    setWorkoutDialogOpen(true);
+                  }}
                 >
                   <PlusCircle className="h-4 w-4" />
                   <span>Add Workout</span>
                 </Button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" ref={workoutCardsRef}>
-                {workoutHistory.map((workout, index) => (
+                {workouts.map((workout) => (
                   <Card key={workout.id} className="overflow-hidden workout-card animate-card">
                     <CardHeader className="bg-primary/5 pb-2">
                       <div className="flex justify-between items-start">
                         <CardTitle>{workout.name}</CardTitle>
-                        <Button variant="ghost" size="icon">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleEditWorkout(workout)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                       </div>
                       <CardDescription className="flex items-center gap-2">
-                        <Calendar className="h-3 w-3" /> {workout.date}
+                        <Calendar className="h-3 w-3" /> {new Date(workout.completed_at).toLocaleDateString()}
                         <span className="mx-1">•</span>
-                        <Clock className="h-3 w-3" /> {workout.duration}
+                        <Clock className="h-3 w-3" /> {workout.duration || "45 min"}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-4 h-[180px] overflow-y-auto">
                       <div className="space-y-2">
-                        {workout.exercises.map((exercise, index) => (
+                        {workout.exercises?.map((exercise: any, index: number) => (
                           <div key={index} className="flex justify-between text-sm">
                             <span className="font-medium">{exercise.name}</span>
                             <span className="text-muted-foreground">
                               {exercise.sets} sets × {exercise.reps} reps × {exercise.weight > 0 ? `${exercise.weight} lbs` : 'BW'}
                             </span>
                           </div>
-                        ))}
+                        )) || (
+                          <p className="text-muted-foreground">No exercises recorded for this workout.</p>
+                        )}
                       </div>
                     </CardContent>
-                    <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-end">
+                    <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-between">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleDeleteWorkout(workout.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Delete
+                      </Button>
                       <Button 
                         variant="ghost" 
                         size="sm" 
@@ -456,6 +614,12 @@ const Home = () => {
                     </CardFooter>
                   </Card>
                 ))}
+
+                {workouts.length === 0 && (
+                  <div className="col-span-full text-center py-8 border rounded-lg bg-muted/20">
+                    <p className="text-muted-foreground">No workouts recorded yet. Add your first workout!</p>
+                  </div>
+                )}
               </div>
             </section>
           </TabsContent>

@@ -171,6 +171,71 @@ export interface Database {
           }
         ]
       }
+      workout_templates: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          created_at: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          created_at?: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          created_at?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_templates_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      template_exercises: {
+        Row: {
+          id: string
+          template_id: string
+          name: string
+          sets: number
+          created_at: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          template_id: string
+          name: string
+          sets: number
+          created_at?: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          template_id?: string
+          name?: string
+          sets?: number
+          created_at?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_exercises_template_id_fkey"
+            columns: ["template_id"]
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -193,15 +258,21 @@ export type User = Tables['users']['Row']
 export type Workout = Tables['workouts']['Row']
 export type Exercise = Tables['exercises']['Row']
 export type Meal = Tables['meals']['Row']
+export type WorkoutTemplate = Tables['workout_templates']['Row']
+export type TemplateExercise = Tables['template_exercises']['Row']
 
 // Insert types
 export type InsertUser = Tables['users']['Insert']
 export type InsertWorkout = Tables['workouts']['Insert']
 export type InsertExercise = Tables['exercises']['Insert']
 export type InsertMeal = Tables['meals']['Insert']
+export type InsertWorkoutTemplate = Tables['workout_templates']['Insert']
+export type InsertTemplateExercise = Tables['template_exercises']['Insert']
 
 // Update types
 export type UpdateUser = Tables['users']['Update']
 export type UpdateWorkout = Tables['workouts']['Update']
 export type UpdateExercise = Tables['exercises']['Update']
 export type UpdateMeal = Tables['meals']['Update']
+export type UpdateWorkoutTemplate = Tables['workout_templates']['Update']
+export type UpdateTemplateExercise = Tables['template_exercises']['Update']

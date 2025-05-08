@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -30,18 +30,44 @@ interface WorkoutTemplateFormProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onSave?: (template: { name: string; exercises: TemplateExercise[] }) => void;
+  initialTemplate?: any;
 }
 
 const WorkoutTemplateForm = ({ 
   open, 
   onOpenChange, 
-  onSave 
+  onSave,
+  initialTemplate
 }: WorkoutTemplateFormProps) => {
   const [templateName, setTemplateName] = useState<string>("New Workout Template");
   const [exercises, setExercises] = useState<TemplateExercise[]>([
     { id: "1", name: "Bench Press", sets: 3 },
     { id: "2", name: "Squats", sets: 4 },
   ]);
+
+  // Initialize form with data if editing an existing template
+  useEffect(() => {
+    if (initialTemplate) {
+      setTemplateName(initialTemplate.name);
+      
+      if (initialTemplate.template_exercises && initialTemplate.template_exercises.length > 0) {
+        const formattedExercises = initialTemplate.template_exercises.map((ex: any) => ({
+          id: ex.id || String(Date.now() + Math.random()),
+          name: ex.name,
+          sets: ex.sets,
+        }));
+        
+        setExercises(formattedExercises);
+      }
+    } else {
+      // Reset form when not editing
+      setTemplateName("New Workout Template");
+      setExercises([
+        { id: "1", name: "Bench Press", sets: 3 },
+        { id: "2", name: "Squats", sets: 4 },
+      ]);
+    }
+  }, [initialTemplate, open]);
 
   const exerciseTypes = [
     "Bench Press",
@@ -90,7 +116,11 @@ const WorkoutTemplateForm = ({
 
   const handleSave = () => {
     if (onSave) {
-      onSave({ name: templateName, exercises });
+      onSave({ 
+        name: templateName, 
+        exercises,
+        ...(initialTemplate && { id: initialTemplate.id }) 
+      });
     }
     if (onOpenChange) {
       onOpenChange(false);
@@ -101,7 +131,9 @@ const WorkoutTemplateForm = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Create Workout Template</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            {initialTemplate ? "Edit Workout Template" : "Create Workout Template"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-6 py-4">
@@ -208,7 +240,9 @@ const WorkoutTemplateForm = ({
           >
             Cancel
           </Button>
-          <Button onClick={handleSave}>Save Template</Button>
+          <Button onClick={handleSave}>
+            {initialTemplate ? "Update Template" : "Save Template"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

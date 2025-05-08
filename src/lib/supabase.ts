@@ -150,3 +150,143 @@ export const mealService = {
     return true;
   }
 };
+
+// Helper functions for workout template operations
+export const templateService = {
+  async getTemplates() {
+    const { data, error } = await supabase
+      .from('workout_templates')
+      .select('*, template_exercises(*)')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  },
+  
+  async addTemplate(template: any) {
+    // First, add the template
+    const { data: templateData, error: templateError } = await supabase
+      .from('workout_templates')
+      .insert({
+        user_id: (await supabase.auth.getUser()).data.user?.id,
+        name: template.name,
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+    
+    if (templateError) throw templateError;
+    
+    // If exercises exist, add them too
+    if (template.exercises && template.exercises.length > 0) {
+      const exercises = template.exercises.map((exercise: any) => ({
+        template_id: templateData.id,
+        name: exercise.name,
+        sets: exercise.sets
+      }));
+      
+      const { error: exerciseError } = await supabase
+        .from('template_exercises')
+        .insert(exercises);
+      
+      if (exerciseError) throw exerciseError;
+    }
+    
+    return templateData;
+  },
+  
+  async updateTemplate(id: string, template: any) {
+    const { data, error } = await supabase
+      .from('workout_templates')
+      .update({
+        name: template.name,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    // If exercises exist, delete old ones and add new ones
+    if (template.exercises && template.exercises.length > 0) {
+      // Delete old exercises
+      const { error: deleteError } = await supabase
+        .from('template_exercises')
+        .delete()
+        .eq('template_id', id);
+      
+      if (deleteError) throw deleteError;
+      
+      // Add new exercises
+      const exercises = template.exercises.map((exercise: any) => ({
+        template_id: id,
+        name: exercise.name,
+        sets: exercise.sets
+      }));
+      
+      const { error: exerciseError } = await supabase
+        .from('template_exercises')
+        .insert(exercises);
+      
+      if (exerciseError) throw exerciseError;
+    }
+    
+    return data;
+  },
+  
+  async deleteTemplate(id: string) {
+    const { error } = await supabase
+      .from('workout_templates')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    return true;
+  },
+  
+  async useTemplate(templateId: string) {
+    // Get template details
+    const { data: template, error: templateError } = await supabase
+      .from('workout_templates')
+      .select('*, template_exercises(*)')
+      .eq('id', templateId)
+      .single();
+    
+    if (templateError) throw templateError;
+    
+    // Create a new workout from template
+    const { data: workoutData, error: workoutError } = await supabase
+      .from('workouts')
+      .insert({
+        user_id: (await supabase.auth.getUser()).data.user?.id,
+        name: template.name,
+        duration: 45, // Default duration in minutes
+        notes: `Created from template: ${template.name}`,
+        completed_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+    
+    if (workoutError) throw workoutError;
+    
+    // Add exercises from template
+    if (template.template_exercises && template.template_exercises.length > 0) {
+      const exercises = template.template_exercises.map((exercise: any) => ({
+        workout_id: workoutData.id,
+        name: exercise.name,
+        sets: exercise.sets,
+        reps: 10, // Default values
+        weight: 0 // Default values
+      }));
+      
+      const { error: exerciseError } = await supabase
+        .from('exercises')
+        .insert(exercises);
+      
+      if (exerciseError) throw exerciseError;
+    }
+    
+    return workoutData;
+  }
+};

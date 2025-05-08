@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -31,15 +31,49 @@ interface Exercise {
 interface WorkoutFormProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onSave?: (workout: { date: Date; exercises: Exercise[] }) => void;
+  onSave?: (workout: { date: Date; name: string; exercises: Exercise[] }) => void;
+  initialWorkout?: any;
 }
 
-const WorkoutForm = ({ open, onOpenChange, onSave }: WorkoutFormProps) => {
+const WorkoutForm = ({ open, onOpenChange, onSave, initialWorkout }: WorkoutFormProps) => {
   const [date, setDate] = useState<Date>(new Date());
   const [exercises, setExercises] = useState<Exercise[]>([
     { id: "1", name: "Bench Press", sets: 3, reps: 10, weight: 135 },
     { id: "2", name: "Squats", sets: 4, reps: 8, weight: 185 },
   ]);
+  
+  const [workoutName, setWorkoutName] = useState<string>("New Workout");
+
+  // Initialize form with data if editing an existing workout
+  useEffect(() => {
+    if (initialWorkout) {
+      setWorkoutName(initialWorkout.name);
+      
+      if (initialWorkout.completed_at) {
+        setDate(new Date(initialWorkout.completed_at));
+      }
+      
+      if (initialWorkout.exercises && initialWorkout.exercises.length > 0) {
+        const formattedExercises = initialWorkout.exercises.map((ex: any) => ({
+          id: ex.id || String(Date.now() + Math.random()),
+          name: ex.name,
+          sets: ex.sets,
+          reps: ex.reps,
+          weight: ex.weight || 0,
+        }));
+        
+        setExercises(formattedExercises);
+      }
+    } else {
+      // Reset form when not editing
+      setWorkoutName("New Workout");
+      setDate(new Date());
+      setExercises([
+        { id: "1", name: "Bench Press", sets: 3, reps: 10, weight: 135 },
+        { id: "2", name: "Squats", sets: 4, reps: 8, weight: 185 },
+      ]);
+    }
+  }, [initialWorkout, open]);
 
   const exerciseTypes = [
     "Bench Press",
@@ -56,6 +90,10 @@ const WorkoutForm = ({ open, onOpenChange, onSave }: WorkoutFormProps) => {
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDate(new Date(e.target.value));
+  };
+  
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setWorkoutName(e.target.value);
   };
 
   const addExercise = () => {
@@ -90,7 +128,12 @@ const WorkoutForm = ({ open, onOpenChange, onSave }: WorkoutFormProps) => {
 
   const handleSave = () => {
     if (onSave) {
-      onSave({ date, exercises });
+      onSave({
+        date,
+        name: workoutName,
+        exercises,
+        ...(initialWorkout && { id: initialWorkout.id }),
+      });
     }
     if (onOpenChange) {
       onOpenChange(false);
@@ -101,10 +144,23 @@ const WorkoutForm = ({ open, onOpenChange, onSave }: WorkoutFormProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Log Workout</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            {initialWorkout ? "Edit Workout" : "Log Workout"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-6 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="workout-name">Workout Name</Label>
+            <Input
+              id="workout-name"
+              type="text"
+              value={workoutName}
+              onChange={handleNameChange}
+              placeholder="Enter a name for this workout"
+            />
+          </div>
+
           <div className="grid gap-2">
             <Label htmlFor="workout-date">Workout Date</Label>
             <Input
@@ -242,7 +298,9 @@ const WorkoutForm = ({ open, onOpenChange, onSave }: WorkoutFormProps) => {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave}>Save Workout</Button>
+          <Button onClick={handleSave}>
+            {initialWorkout ? "Update Workout" : "Save Workout"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
