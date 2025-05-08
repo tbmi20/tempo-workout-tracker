@@ -1,9 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../types/supabase';
 
-// Initialize the Supabase client with the kinnikuman project credentials
-const supabaseUrl = 'https://odziocmgjlhkjalvvnig.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kemlvY21namxoa2phbHZ2bmlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYzOTY2OTEsImV4cCI6MjA2MTk3MjY5MX0.nuMKLC6Z7esXIZFKwufAthw956sqJbl3bCenahNxKfk';
+// Initialize the Supabase client using environment variables
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Check if environment variables are set
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Missing Supabase environment variables. Please check your .env file.');
+}
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
