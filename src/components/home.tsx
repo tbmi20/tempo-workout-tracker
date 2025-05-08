@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, BarChart3, Dumbbell, Utensils, Calendar, Edit, Clock, Copy, LogIn } from "lucide-react";
+import { PlusCircle, BarChart3, Dumbbell, Utensils, Calendar, Edit, Clock, Copy, LogIn, LogOut, User } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import SummaryCards from "./SummaryCards";
 import WorkoutForm from "./WorkoutForm";
@@ -13,11 +13,24 @@ import WorkoutDetailDialog from "./WorkoutDetailDialog";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MealDiaryProvider } from "@/contexts/MealDiaryContext";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import gsap from "gsap";
 import { workoutService, mealService, templateService } from "@/lib/supabase";
 import { toast } from "@/components/ui/use-toast";
 
 const Home = () => {
+  // Use the auth context
+  const { user, signOut } = useAuth();
+  
+  // Rest of the component state
   const [workoutDialogOpen, setWorkoutDialogOpen] = useState(false);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [mealDialogOpen, setMealDialogOpen] = useState(false);
@@ -37,6 +50,16 @@ const Home = () => {
   const progressRef = useRef<HTMLDivElement>(null);
   const workoutCardsRef = useRef<HTMLDivElement>(null);
   const templateCardsRef = useRef<HTMLDivElement>(null);
+
+  // Handle user sign out
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      // The AuthContext will handle the redirection to login page
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   // Load data from Supabase
   useEffect(() => {
@@ -383,14 +406,27 @@ const Home = () => {
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-primary">Tempo</h1>
           <div className="flex items-center gap-4">
-            <Button 
-              variant="default" 
-              className="flex items-center gap-2 login-btn shadow-sm"
-              data-testid="login-register-button"
-            >
-              <LogIn className="h-4 w-4" />
-              <span>Login / Register</span>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="secondary" 
+                  className="flex items-center gap-2 shadow-sm"
+                  data-testid="user-menu-button"
+                >
+                  <User className="h-4 w-4" />
+                  <span>{user?.email?.split('@')[0] || 'User'}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <div className="flex gap-2">
               <Button 
                 variant="secondary" 
