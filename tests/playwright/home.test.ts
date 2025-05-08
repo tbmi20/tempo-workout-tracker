@@ -7,15 +7,20 @@ test('Home page should load and show the correct title', async ({ page }) => {
   await expect(page).toHaveTitle(/Tempo Workout Tracker/);
   
   // Check if the main elements are visible
-  await expect(page.locator('h1:has-text("Tempo Workout Tracker")')).toBeVisible();
+  await expect(page.locator('h1:has-text("Tempo")')).toBeVisible();
 });
 
-test('Navigation menu should work correctly', async ({ page }) => {
+test('Tab navigation should work correctly', async ({ page }) => {
   await page.goto('/');
   
-  // Check navigation items
-  const navItems = page.locator('nav a');
-  expect(await navItems.count()).toBeGreaterThan(0);
+  // Check tabs instead of navigation items
+  const tabs = page.locator('button[role="tab"]');
+  expect(await tabs.count()).toBeGreaterThan(0);
+  
+  // Test tab switching
+  const workoutsTab = page.locator('button[role="tab"]:has-text("Workouts")');
+  await workoutsTab.click();
+  await expect(page.locator('h2:has-text("Workout Templates")')).toBeVisible();
 });
 
 // Test workout functionality if the workout form is available
@@ -41,7 +46,7 @@ test('Should be able to view meal form', async ({ page }) => {
   await page.goto('/');
   
   // Try to find and click on a button that would open the meal form
-  const addMealButton = page.locator('button:has-text("Add Meal"), a:has-text("Add Meal")').first();
+  const addMealButton = page.locator('button:has-text("Log Meal"), a:has-text("Log Meal")').first();
   
   if (await addMealButton.count() > 0) {
     await addMealButton.click();

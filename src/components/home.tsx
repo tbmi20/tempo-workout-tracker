@@ -68,13 +68,20 @@ const Home = () => {
 
   // Animation setup
   useEffect(() => {
-    // Animate header with a subtle fade in and slide down
-    gsap.from(headerRef.current, {
-      y: -50,
-      opacity: 0,
-      duration: 1,
-      ease: "power3.out"
-    });
+    // Animate header with a subtle fade in and slide down, but ensure it stays visible
+    gsap.fromTo(headerRef.current, 
+      {
+        y: -50,
+        opacity: 0
+      },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 1,
+        ease: "power3.out",
+        clearProps: "all" // This ensures props are cleared after animation so header stays visible
+      }
+    );
     
     // Staggered animation for cards
     gsap.fromTo(
@@ -372,13 +379,13 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <header className="mb-8" ref={headerRef}>
+      <header className="mb-8 border-b pb-4 pt-2 bg-background sticky top-0" ref={headerRef}>
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Fitness Tracker</h1>
+          <h1 className="text-3xl font-bold text-primary">Tempo</h1>
           <div className="flex items-center gap-4">
             <Button 
-              variant="ghost" 
-              className="flex items-center gap-2 login-btn"
+              variant="default" 
+              className="flex items-center gap-2 login-btn shadow-sm"
               data-testid="login-register-button"
             >
               <LogIn className="h-4 w-4" />
@@ -386,8 +393,8 @@ const Home = () => {
             </Button>
             <div className="flex gap-2">
               <Button 
-                variant="outline" 
-                className="flex items-center gap-2 add-workout-btn"
+                variant="secondary" 
+                className="flex items-center gap-2 add-workout-btn shadow-sm"
                 onClick={() => {
                   setEditingWorkout(null); // Ensure we're not in edit mode
                   setWorkoutDialogOpen(true);
@@ -399,8 +406,8 @@ const Home = () => {
               </Button>
 
               <Button 
-                variant="outline" 
-                className="flex items-center gap-2 add-meal-btn"
+                variant="secondary" 
+                className="flex items-center gap-2 add-meal-btn shadow-sm"
                 onClick={() => setMealDialogOpen(true)}
                 data-testid="add-meal-button"
               >
