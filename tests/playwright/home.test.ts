@@ -53,3 +53,26 @@ test('Should be able to view meal form', async ({ page }) => {
     test.skip();
   }
 });
+
+// Test header visibility and position
+test('Header should be visible and Login/Register button accessible', async ({ page }) => {
+  await page.goto('/');
+  
+  // Wait for page to load fully
+  await page.waitForLoadState('networkidle');
+  
+  // Check if the header is visible
+  const header = page.locator('header');
+  await expect(header).toBeVisible();
+  
+  // Get header bounding box to check position
+  const headerBox = await header.boundingBox();
+  expect(headerBox?.y).toBeLessThan(100); // Header should be at the top of the page
+  
+  // Check that the Login/Register button exists and is visible
+  const loginButton = page.locator('[data-testid="login-register-button"]');
+  await expect(loginButton).toBeVisible();
+  
+  // Check that the Login/Register button is clickable (not obscured)
+  await loginButton.click();
+});

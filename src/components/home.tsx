@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, BarChart3, Dumbbell, Utensils, Calendar, Edit, Clock, Copy } from "lucide-react";
+import { PlusCircle, BarChart3, Dumbbell, Utensils, Calendar, Edit, Clock, Copy, LogIn } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import SummaryCards from "./SummaryCards";
 import WorkoutForm from "./WorkoutForm";
@@ -375,29 +375,39 @@ const Home = () => {
       <header className="mb-8" ref={headerRef}>
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Fitness Tracker</h1>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-4">
             <Button 
-              variant="outline" 
-              className="flex items-center gap-2 add-workout-btn"
-              onClick={() => {
-                setEditingWorkout(null); // Ensure we're not in edit mode
-                setWorkoutDialogOpen(true);
-              }}
-              data-testid="add-workout-button"
+              variant="ghost" 
+              className="flex items-center gap-2 login-btn"
+              data-testid="login-register-button"
             >
-              <PlusCircle className="h-4 w-4" />
-              <span>Add Workout</span>
+              <LogIn className="h-4 w-4" />
+              <span>Login / Register</span>
             </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2 add-workout-btn"
+                onClick={() => {
+                  setEditingWorkout(null); // Ensure we're not in edit mode
+                  setWorkoutDialogOpen(true);
+                }}
+                data-testid="add-workout-button"
+              >
+                <PlusCircle className="h-4 w-4" />
+                <span>Add Workout</span>
+              </Button>
 
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2 add-meal-btn"
-              onClick={() => setMealDialogOpen(true)}
-              data-testid="add-meal-button"
-            >
-              <PlusCircle className="h-4 w-4" />
-              <span>Log Meal</span>
-            </Button>
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2 add-meal-btn"
+                onClick={() => setMealDialogOpen(true)}
+                data-testid="add-meal-button"
+              >
+                <PlusCircle className="h-4 w-4" />
+                <span>Log Meal</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
