@@ -212,4 +212,43 @@ The project includes several configuration files:
 
 ---
 
+## For AI Agents & Contributors
+
+### Running Tests with Playwright
+
+You can run any tests on this project using Playwright. The testing infrastructure is already set up and ready to use:
+
+```bash
+# Run all tests across all browsers
+npx playwright test
+
+# Run tests in a specific browser
+npx playwright test --project=chromium
+
+# Run a specific test file
+npx playwright test home.test.ts
+
+# Run tests in UI mode
+npx playwright test --ui
+
+# Generate test reports
+npx playwright test --reporter=html
+```
+
+Test results will be available in the `playwright-report` directory.
+
+### Updating Documentation
+
+When making changes to the project, please update this README accordingly to ensure documentation stays current. Important areas to update include:
+
+1. New features or components added
+2. Changes to the project structure
+3. Updated environment requirements
+4. New dependencies
+5. Changes to testing procedures
+
+Maintaining up-to-date documentation is essential for both human developers and AI agents working on this project in the future.
+
+---
+
 **Note**: This README provides the key information needed to understand the Tempo Workout Tracker application. The application combines beautiful GSAP animations with a robust Supabase backend for a complete fitness tracking experience. All buttons and interactive elements are fully functional and connected to the Supabase database.
