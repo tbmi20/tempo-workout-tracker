@@ -1,230 +1,192 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import {
-  ArrowUpIcon,
-  ArrowDownIcon,
-  Dumbbell,
-  Utensils,
-  Clock,
-  Calendar,
-} from "lucide-react";
-
-interface WorkoutSummary {
-  totalWorkouts: number;
-  totalExercises: number;
-  lastWorkout: string;
-  recentExercises: Array<{
-    name: string;
-    sets: number;
-    reps: number;
-    weight: number;
-  }>;
-  trend: "up" | "down" | "stable";
-}
-
-interface MealSummary {
-  totalMeals: number;
-  totalCalories: number;
-  lastMeal: string;
-  recentMeals: Array<{
-    name: string;
-    type: string;
-    calories: number;
-  }>;
-  macros: {
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-}
+import { Activity, Dumbbell, Utensils, Flame } from "lucide-react";
+import gsap from "gsap";
 
 interface SummaryCardsProps {
-  workoutSummary?: WorkoutSummary;
-  mealSummary?: MealSummary;
+  workouts?: any[];
+  meals?: any[];
 }
 
-const SummaryCards: React.FC<SummaryCardsProps> = ({
-  workoutSummary = {
-    totalWorkouts: 12,
-    totalExercises: 36,
-    lastWorkout: "2 hours ago",
-    recentExercises: [
-      { name: "Bench Press", sets: 3, reps: 10, weight: 135 },
-      { name: "Squats", sets: 4, reps: 8, weight: 185 },
-      { name: "Pull-ups", sets: 3, reps: 8, weight: 0 },
-    ],
-    trend: "up",
-  },
-  mealSummary = {
-    totalMeals: 3,
-    totalCalories: 1850,
-    lastMeal: "45 minutes ago",
-    recentMeals: [
-      { name: "Grilled Chicken Salad", type: "Lunch", calories: 450 },
-      { name: "Protein Shake", type: "Snack", calories: 220 },
-      { name: "Oatmeal with Berries", type: "Breakfast", calories: 320 },
-    ],
-    macros: {
-      protein: 120,
-      carbs: 180,
-      fat: 45,
-    },
-  },
-}) => {
-  return (
-    <div className="w-full space-y-6 bg-background">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Workout Summary Card */}
-        <Card className="shadow-md">
-          <CardHeader className="pb-2">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <Dumbbell className="h-5 w-5 text-primary" />
-                <CardTitle>Workout Summary</CardTitle>
-              </div>
-              <Badge
-                variant={
-                  workoutSummary.trend === "up" ? "default" : "destructive"
-                }
-                className="flex items-center gap-1"
-              >
-                {workoutSummary.trend === "up" ? (
-                  <ArrowUpIcon className="h-3 w-3" />
-                ) : (
-                  <ArrowDownIcon className="h-3 w-3" />
-                )}
-                {workoutSummary.trend === "up" ? "Improving" : "Decreasing"}
-              </Badge>
-            </div>
-            <CardDescription className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span>Last workout: {workoutSummary.lastWorkout}</span>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground">
-                  Total Workouts
-                </span>
-                <span className="text-2xl font-bold">
-                  {workoutSummary.totalWorkouts}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground">
-                  Total Exercises
-                </span>
-                <span className="text-2xl font-bold">
-                  {workoutSummary.totalExercises}
-                </span>
-              </div>
-            </div>
-            <Separator className="my-4" />
-            <div>
-              <h4 className="text-sm font-medium mb-2">Recent Exercises</h4>
-              <div className="space-y-2">
-                {workoutSummary.recentExercises.map((exercise, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center text-sm"
-                  >
-                    <span className="font-medium">{exercise.name}</span>
-                    <span className="text-muted-foreground">
-                      {exercise.sets} sets × {exercise.reps} reps
-                      {exercise.weight > 0 ? ` @ ${exercise.weight}lbs` : ""}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="pt-0">
-            <div className="flex items-center text-xs text-muted-foreground">
-              <Calendar className="h-3 w-3 mr-1" />
-              <span>This Week</span>
-            </div>
-          </CardFooter>
-        </Card>
+const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
+  const summaryRef = useRef<HTMLDivElement>(null);
 
-        {/* Meal Summary Card */}
-        <Card className="shadow-md">
-          <CardHeader className="pb-2">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <Utensils className="h-5 w-5 text-primary" />
-                <CardTitle>Meal Summary</CardTitle>
-              </div>
-              <Badge variant="secondary" className="flex items-center gap-1">
-                {mealSummary.totalCalories} calories today
-              </Badge>
-            </div>
-            <CardDescription className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span>Today's Nutrition</span>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              <div className="flex flex-col items-center p-2 bg-muted rounded-md">
-                <span className="text-xs text-muted-foreground">Protein</span>
-                <span className="text-lg font-bold">
-                  {mealSummary.macros.protein}g
-                </span>
-              </div>
-              <div className="flex flex-col items-center p-2 bg-muted rounded-md">
-                <span className="text-xs text-muted-foreground">Carbs</span>
-                <span className="text-lg font-bold">
-                  {mealSummary.macros.carbs}g
-                </span>
-              </div>
-              <div className="flex flex-col items-center p-2 bg-muted rounded-md">
-                <span className="text-xs text-muted-foreground">Fat</span>
-                <span className="text-lg font-bold">
-                  {mealSummary.macros.fat}g
-                </span>
-              </div>
-            </div>
-            <Separator className="my-4" />
-            <div>
-              <h4 className="text-sm font-medium mb-2">Recent Meals</h4>
-              <div className="space-y-2">
-                {mealSummary.recentMeals.map((meal, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center text-sm"
-                  >
-                    <div>
-                      <span className="font-medium">{meal.name}</span>
-                      <Badge variant="outline" className="ml-2 text-xs">
-                        {meal.type}
-                      </Badge>
-                    </div>
-                    <span className="text-muted-foreground">
-                      {meal.calories} cal
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="pt-0">
-            <div className="flex items-center text-xs text-muted-foreground">
-              <Calendar className="h-3 w-3 mr-1" />
-              <span>Last meal: {mealSummary.lastMeal}</span>
-            </div>
-          </CardFooter>
-        </Card>
-      </div>
+  // Calculate statistics
+  const today = new Date().setHours(0, 0, 0, 0);
+  
+  // Calculate today's workouts
+  const todaysWorkouts = workouts.filter((workout) => {
+    const workoutDate = new Date(workout.completed_at).setHours(0, 0, 0, 0);
+    return workoutDate === today;
+  });
+  
+  // Calculate today's workout minutes
+  const workoutMinutes = todaysWorkouts.reduce((total, workout) => {
+    return total + (workout.duration || 0);
+  }, 0);
+  
+  // Calculate today's meals
+  const todaysMeals = meals.filter((meal) => {
+    const mealDate = new Date(meal.consumed_at).setHours(0, 0, 0, 0);
+    return mealDate === today;
+  });
+  
+  // Calculate today's calories
+  const caloriesConsumed = todaysMeals.reduce((total, meal) => {
+    return total + (meal.calories || 0);
+  }, 0);
+
+  // Animations
+  useEffect(() => {
+    // Staggered animation for summary cards
+    gsap.fromTo(
+      ".summary-card",
+      { 
+        y: 30,
+        opacity: 0,
+        scale: 0.95
+      },
+      { 
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        stagger: 0.1,
+        duration: 0.8,
+        ease: "back.out(1.7)"
+      }
+    );
+
+    // Animate the numbers counting up
+    gsap.fromTo(
+      ".count-value",
+      { textContent: 0 },
+      {
+        duration: 2,
+        textContent: function() {
+          return this.target.getAttribute("data-value");
+        },
+        snap: { textContent: 1 },
+        stagger: 0.1,
+        ease: "power2.inOut"
+      }
+    );
+
+    // Animate the icons with a subtle bounce
+    gsap.fromTo(
+      ".summary-icon",
+      { scale: 0, rotate: -30 },
+      { 
+        scale: 1, 
+        rotate: 0,
+        duration: 0.8, 
+        ease: "elastic.out(1, 0.3)",
+        stagger: 0.15,
+        delay: 0.2
+      }
+    );
+  }, [workouts, meals]);
+
+  return (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" ref={summaryRef}>
+      <Card className="summary-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="space-y-1">
+            <CardTitle className="text-sm font-medium">Workouts</CardTitle>
+            <CardDescription>Today's sessions</CardDescription>
+          </div>
+          <div className="bg-primary/10 p-2 rounded-full summary-icon">
+            <Dumbbell className="h-4 w-4 text-primary" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold count-value" data-value={todaysWorkouts.length}>
+            {todaysWorkouts.length}
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            {todaysWorkouts.length === 0 
+              ? "No workouts today" 
+              : todaysWorkouts.length === 1 
+                ? "1 workout completed" 
+                : `${todaysWorkouts.length} workouts completed`}
+          </p>
+        </CardContent>
+      </Card>
+      
+      <Card className="summary-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="space-y-1">
+            <CardTitle className="text-sm font-medium">Active Minutes</CardTitle>
+            <CardDescription>Total workout time</CardDescription>
+          </div>
+          <div className="bg-secondary/10 p-2 rounded-full summary-icon">
+            <Activity className="h-4 w-4 text-secondary" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold count-value" data-value={workoutMinutes}>
+            {workoutMinutes}
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            {workoutMinutes === 0 
+              ? "No active minutes today" 
+              : workoutMinutes === 1 
+                ? "1 minute of activity" 
+                : `${workoutMinutes} minutes of activity`}
+          </p>
+        </CardContent>
+      </Card>
+      
+      <Card className="summary-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="space-y-1">
+            <CardTitle className="text-sm font-medium">Meals Logged</CardTitle>
+            <CardDescription>Today's nutrition</CardDescription>
+          </div>
+          <div className="bg-green-500/10 p-2 rounded-full summary-icon">
+            <Utensils className="h-4 w-4 text-green-500" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold count-value" data-value={todaysMeals.length}>
+            {todaysMeals.length}
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            {todaysMeals.length === 0 
+              ? "No meals logged today" 
+              : todaysMeals.length === 1 
+                ? "1 meal logged" 
+                : `${todaysMeals.length} meals logged`}
+          </p>
+        </CardContent>
+      </Card>
+      
+      <Card className="summary-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="space-y-1">
+            <CardTitle className="text-sm font-medium">Calories</CardTitle>
+            <CardDescription>Today's intake</CardDescription>
+          </div>
+          <div className="bg-orange-500/10 p-2 rounded-full summary-icon">
+            <Flame className="h-4 w-4 text-orange-500" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold count-value" data-value={caloriesConsumed}>
+            {caloriesConsumed}
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            {caloriesConsumed === 0 
+              ? "No calories tracked today" 
+              : `${caloriesConsumed} calories consumed`}
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 };

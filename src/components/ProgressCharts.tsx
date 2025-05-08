@@ -1,387 +1,282 @@
-import React, { useState } from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useEffect, useRef } from "react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { format, subDays } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { DateRange } from "react-day-picker";
-import { 
-  Chart as ChartJS, 
-  CategoryScale, 
-  LinearScale, 
-  BarElement, 
-  LineElement,
-  PointElement,
-  Title, 
-  Tooltip, 
-  Legend,
-  ChartOptions
-} from 'chart.js';
-import { Bar, Line } from 'react-chartjs-2';
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-
-// Register the required Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
-interface ChartData {
-  labels: string[];
-  values: number[];
-}
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import gsap from "gsap";
 
 interface ProgressChartsProps {
-  workoutData?: ChartData;
-  caloriesBurnedData?: ChartData;
-  nutritionData?: ChartData;
-  weightData?: ChartData;
+  workouts?: any[];
+  meals?: any[];
 }
 
-const ProgressCharts = ({
-  caloriesBurnedData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    values: [320, 450, 0, 580, 250, 520, 0],
-  },
-  nutritionData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    values: [2100, 1950, 2300, 2000, 2200, 2500, 2150],
-  },
-  weightData = {
-    labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-    values: [185, 183, 181, 180],
-  },
-}: ProgressChartsProps) => {
-  const [timeRange, setTimeRange] = useState("week");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 7),
-    to: new Date(),
-  });
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [weightUnit, setWeightUnit] = useState<"lbs" | "kg">("lbs");
+const ProgressCharts = ({ workouts = [], meals = [] }: ProgressChartsProps) => {
+  const chartRef = useRef<HTMLDivElement>(null);
+  
+  // Process workout data for charts
+  const processWorkoutData = () => {
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (6 - i));
+      return {
+        date: date.toISOString().split('T')[0],
+        displayDate: date.toLocaleDateString(undefined, { weekday: 'short' }),
+        timestamp: date.getTime(),
+      };
+    });
 
-  // Function to convert pounds to kilograms
-  const lbsToKg = (value: number): number => {
-    return Math.round((value / 2.2046) * 10) / 10; // Convert and round to 1 decimal place
+    const workoutsByDay = last7Days.map(day => {
+      const dayWorkouts = workouts.filter(workout => {
+        const workoutDate = new Date(workout.completed_at).toISOString().split('T')[0];
+        return workoutDate === day.date;
+      });
+
+      return {
+        name: day.displayDate,
+        minutes: dayWorkouts.reduce((total, workout) => total + (workout.duration || 0), 0),
+        sessions: dayWorkouts.length
+      };
+    });
+
+    return workoutsByDay;
   };
 
-  // Function to handle time range change
-  const handleTimeRangeChange = (value: string) => {
-    setTimeRange(value);
-    
-    // Update date range based on selected time range
-    const today = new Date();
-    let from: Date;
-    
-    switch (value) {
-      case "week":
-        from = subDays(today, 7);
-        break;
-      case "month":
-        from = subDays(today, 30);
-        break;
-      case "year":
-        from = subDays(today, 365);
-        break;
-      default:
-        from = subDays(today, 7);
-    }
-    
-    setDateRange({ from, to: today });
+  // Process meal data for charts
+  const processMealData = () => {
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (6 - i));
+      return {
+        date: date.toISOString().split('T')[0],
+        displayDate: date.toLocaleDateString(undefined, { weekday: 'short' }),
+        timestamp: date.getTime(),
+      };
+    });
+
+    const mealsByDay = last7Days.map(day => {
+      const dayMeals = meals.filter(meal => {
+        const mealDate = new Date(meal.consumed_at).toISOString().split('T')[0];
+        return mealDate === day.date;
+      });
+
+      return {
+        name: day.displayDate,
+        calories: dayMeals.reduce((total, meal) => total + (meal.calories || 0), 0),
+        protein: dayMeals.reduce((total, meal) => total + (meal.protein || 0), 0),
+        carbs: dayMeals.reduce((total, meal) => total + (meal.carbs || 0), 0),
+        fat: dayMeals.reduce((total, meal) => total + (meal.fat || 0), 0)
+      };
+    });
+
+    return mealsByDay;
   };
 
-  // Function to handle date range selection
-  const handleDateRangeSelect = (range: DateRange | undefined) => {
-    if (range) {
-      setDateRange(range);
-      // If a custom date range is selected, set timeRange to "custom"
-      if (range.from && range.to) {
-        setTimeRange("custom");
+  // GSAP animations
+  useEffect(() => {
+    // Animate the chart container
+    gsap.fromTo(
+      chartRef.current,
+      { 
+        opacity: 0,
+        y: 30
+      },
+      { 
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power3.out"
       }
-    }
-  };
+    );
 
-  // Function to convert our ChartData format to Chart.js format
-  const convertToChartJsData = (data: ChartData, label: string, color: string, backgroundColor: string) => {
-    return {
-      labels: data.labels,
-      datasets: [
-        {
-          label,
-          data: data.values,
-          backgroundColor,
-          borderColor: color,
-          borderWidth: 1,
-        },
-      ],
-    };
-  };
-
-  // Common chart options
-  const barChartOptions: ChartOptions<'bar'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        callbacks: {
-          label: function(context) {
-            return `${context.parsed.y} cal`;
-          }
-        }
+    // Animate the SVG elements inside charts with staggered delay
+    gsap.fromTo(
+      ".recharts-surface",
+      { opacity: 0, scale: 0.9 },
+      { 
+        opacity: 1,
+        scale: 1,
+        duration: 1,
+        ease: "elastic.out(1, 0.8)",
+        stagger: 0.2,
+        delay: 0.3
       }
-    },
-    scales: {
-      x: {
-        ticks: {
-          callback: function(val, index) {
-            // Show day/label on first line
-            const labels = this.getLabelForValue(val as number);
-            // Get data value for this index
-            const dataVal = this.chart.data.datasets[0].data[index as number];
-            // Return multiline label: day name and value with unit
-            return [labels, `${dataVal} cal`];
-          }
-        }
-      },
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
+    );
 
-  // Get weight data with appropriate unit
-  const getWeightData = () => {
-    return {
-      labels: weightData.labels,
-      datasets: [
-        {
-          label: `Weight (${weightUnit})`,
-          data: weightUnit === "lbs" 
-            ? weightData.values 
-            : weightData.values.map(value => lbsToKg(value)),
-          backgroundColor: 'hsla(var(--primary), 0.2)',
-          borderColor: 'hsl(var(--primary))',
-          borderWidth: 1,
-        },
-      ],
-    };
-  };
-
-  // Line chart options
-  const lineChartOptions: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        callbacks: {
-          label: function(context) {
-            return `${context.parsed.y} ${weightUnit}`;
-          }
-        }
+    // Animate the chart lines/bars with drawing effect
+    gsap.fromTo(
+      ".recharts-layer",
+      { opacity: 0 },
+      { 
+        opacity: 1,
+        duration: 1.5,
+        stagger: 0.05,
+        delay: 0.5,
+        ease: "power2.inOut"
       }
-    },
-    scales: {
-      x: {
-        ticks: {
-          callback: function(val, index) {
-            // Show week/label on first line
-            const labels = this.getLabelForValue(val as number);
-            // Get data value for this index
-            const dataVal = this.chart.data.datasets[0].data[index as number];
-            // Return multiline label: week label and weight value
-            return [labels, `${dataVal} ${weightUnit}`];
-          }
-        }
-      },
-      y: {
-        beginAtZero: false,
-      },
-    },
+    );
+  }, [workouts, meals]);
+
+  const workoutData = processWorkoutData();
+  const mealData = processMealData();
+
+  // Generate sample data for strength progress if not enough real data
+  const strengthData = workouts.length < 3 ? [
+    { name: "Week 1", squat: 135, deadlift: 185, bench: 95 },
+    { name: "Week 2", squat: 145, deadlift: 195, bench: 100 },
+    { name: "Week 3", squat: 155, deadlift: 205, bench: 105 },
+    { name: "Week 4", squat: 165, deadlift: 215, bench: 115 }
+  ] : []; // In a real app, you'd process real strength data here
+
+  const handleTabChange = (tab: string) => {
+    // Reset animations for the newly selected chart tab
+    gsap.fromTo(
+      `.${tab}-chart .recharts-surface`,
+      { opacity: 0.5, scale: 0.95 },
+      { 
+        opacity: 1,
+        scale: 1,
+        duration: 0.5,
+        ease: "back.out(1.7)"
+      }
+    );
   };
 
   return (
-    <div className="w-full bg-background p-6 rounded-lg shadow-sm">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Progress Tracking</h2>
-        <div className="flex items-center space-x-4">
-          <Select value={timeRange} onValueChange={handleTimeRangeChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select time range">
-                {timeRange === "custom" 
-                  ? "Custom Range" 
-                  : timeRange === "week" 
-                  ? "Last 7 days" 
-                  : timeRange === "month" 
-                  ? "Last 30 days" 
-                  : "Last 12 months"}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="week">Last 7 days</SelectItem>
-              <SelectItem value="month">Last 30 days</SelectItem>
-              <SelectItem value="year">Last 12 months</SelectItem>
-              {timeRange === "custom" && <SelectItem value="custom">Custom Range</SelectItem>}
-            </SelectContent>
-          </Select>
+    <Card className="relative overflow-hidden" ref={chartRef}>
+      <CardHeader>
+        <CardTitle>Fitness Progress</CardTitle>
+        <CardDescription>
+          Track your fitness journey over time
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="activity" className="w-full" onValueChange={handleTabChange}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="activity">Activity</TabsTrigger>
+            <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
+            <TabsTrigger value="strength">Strength</TabsTrigger>
+          </TabsList>
           
-          <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="icon"
-                className={cn(isCalendarOpen && "border-primary")}
-              >
-                <CalendarIcon className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                initialFocus
-                mode="range"
-                defaultMonth={dateRange?.from}
-                selected={dateRange}
-                onSelect={handleDateRangeSelect}
-                numberOfMonths={2}
-                footer={
-                  <div className="px-4 pt-0 pb-4">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-muted-foreground">
-                        {dateRange?.from ? (
-                          dateRange.to ? (
-                            <>
-                              {format(dateRange.from, "LLL dd, y")} -{" "}
-                              {format(dateRange.to, "LLL dd, y")}
-                            </>
-                          ) : (
-                            format(dateRange.from, "LLL dd, y")
-                          )
-                        ) : (
-                          "Select a date range"
-                        )}
-                      </p>
-                      <Button 
-                        size="sm" 
-                        onClick={() => setIsCalendarOpen(false)}
-                        className="ml-4"
-                      >
-                        Apply
-                      </Button>
-                    </div>
-                  </div>
-                }
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
-
-      <Tabs defaultValue="calories" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="calories">Calories Burned</TabsTrigger>
-          <TabsTrigger value="nutrition">Nutrition Progress</TabsTrigger>
-          <TabsTrigger value="weight">Weight Progress</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="calories" className="mt-6 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Calories Burned</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 w-full">
-                <Bar 
-                  options={barChartOptions} 
-                  data={convertToChartJsData(
-                    caloriesBurnedData, 
-                    'Calories Burned', 
-                    'rgb(249, 115, 22)', // Tailwind orange-500
-                    'rgba(249, 115, 22, 0.5)'
-                  )} 
-                  className="w-full h-full"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="nutrition" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Daily Calorie Intake</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 w-full">
-                <Bar 
-                  options={barChartOptions}
-                  data={convertToChartJsData(
-                    nutritionData, 
-                    'Calorie Intake', 
-                    'hsl(var(--secondary))', 
-                    'hsla(var(--secondary), 0.5)'
-                  )} 
-                  className="w-full h-full"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="weight" className="mt-6">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Weight Tracking</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="weight-unit" className="text-sm">lbs</Label>
-                  <Switch 
-                    id="weight-unit" 
-                    checked={weightUnit === "kg"}
-                    onCheckedChange={(checked) => setWeightUnit(checked ? "kg" : "lbs")}
+          <TabsContent value="activity" className="activity-chart">
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={workoutData}
+                  margin={{
+                    top: 10,
+                    right: 30,
+                    left: 0,
+                    bottom: 0,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                  <XAxis dataKey="name" />
+                  <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
+                  <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+                  <Tooltip />
+                  <Area
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="minutes"
+                    stroke="#8884d8"
+                    fill="#8884d8"
+                    fillOpacity={0.3}
+                    activeDot={{ r: 8 }}
+                    name="Minutes"
                   />
-                  <Label htmlFor="weight-unit" className="text-sm">kg</Label>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 w-full">
-                <Line 
-                  options={lineChartOptions}
-                  data={getWeightData()}
-                  className="w-full h-full"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+                  <Area
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="sessions"
+                    stroke="#82ca9d"
+                    fill="#82ca9d"
+                    fillOpacity={0.3}
+                    activeDot={{ r: 6 }}
+                    name="Sessions"
+                  />
+                  <Legend />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="nutrition" className="nutrition-chart">
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={mealData}
+                  margin={{
+                    top: 10,
+                    right: 30,
+                    left: 0,
+                    bottom: 0,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="calories" fill="#FF6B6B" name="Calories" />
+                  <Bar dataKey="protein" fill="#4ECDC4" name="Protein (g)" />
+                  <Bar dataKey="carbs" fill="#FFD166" name="Carbs (g)" />
+                  <Bar dataKey="fat" fill="#6A0572" name="Fat (g)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="strength" className="strength-chart">
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={strengthData}
+                  margin={{
+                    top: 10,
+                    right: 30,
+                    left: 0,
+                    bottom: 0,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="squat"
+                    stroke="#8884d8"
+                    activeDot={{ r: 8 }}
+                    strokeWidth={2}
+                    name="Squat (lbs)"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="deadlift"
+                    stroke="#82ca9d"
+                    strokeWidth={2}
+                    name="Deadlift (lbs)"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="bench"
+                    stroke="#ffc658"
+                    strokeWidth={2}
+                    name="Bench Press (lbs)"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
 

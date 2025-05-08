@@ -29,13 +29,14 @@ interface MealFormProps {
   onOpenChange?: (open: boolean) => void;
   mealToEdit: MealEntry | null;
   selectedDate?: string;
+  onSave?: (meal: any) => Promise<void> | void;
 }
 
 const currentTime = () => {
   return format(new Date(), "h:mm a");
 };
 
-const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProps) => {
+const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate, onSave }: MealFormProps) => {
   const { addMeal, updateMeal } = useMealDiary();
   const [mealName, setMealName] = useState("");
   const [mealType, setMealType] = useState<string>("breakfast");
@@ -142,6 +143,11 @@ const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProp
       addMeal(mealData);
     }
 
+    // Call the onSave prop if it exists
+    if (onSave) {
+      onSave(mealData);
+    }
+
     if (onOpenChange) {
       onOpenChange(false);
     }
@@ -169,6 +175,7 @@ const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProp
                 onChange={(e) => setMealName(e.target.value)}
                 placeholder="e.g., Morning Oatmeal"
                 className="h-8"
+                data-testid="meal-name-input"
               />
             </div>
 
@@ -247,6 +254,7 @@ const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProp
                           }
                           placeholder="0"
                           className="h-7 text-sm"
+                          data-testid="meal-calories-input"
                         />
                       </div>
                       <div className="col-span-3 sm:col-span-2 grid gap-1">
@@ -351,7 +359,11 @@ const MealForm = ({ open, onOpenChange, mealToEdit, selectedDate }: MealFormProp
           >
             Cancel
           </Button>
-          <Button size="sm" onClick={handleSave}>
+          <Button 
+            size="sm" 
+            onClick={handleSave}
+            data-testid="save-meal-button"
+          >
             {mealToEdit ? "Update" : "Save"}
           </Button>
         </DialogFooter>

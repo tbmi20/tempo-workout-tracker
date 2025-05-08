@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, BarChart3, Dumbbell, Utensils, Calendar, Edit, Clock, Copy } from "lucide-react";
@@ -13,6 +13,8 @@ import WorkoutDetailDialog from "./WorkoutDetailDialog";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MealDiaryProvider } from "@/contexts/MealDiaryContext";
+import gsap from "gsap";
+import { workoutService, mealService } from "@/lib/supabase";
 
 const Home = () => {
   const [workoutDialogOpen, setWorkoutDialogOpen] = useState(false);
@@ -20,20 +22,172 @@ const Home = () => {
   const [mealDialogOpen, setMealDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [selectedWorkout, setSelectedWorkout] = useState<any>(null);
+  const [workouts, setWorkouts] = useState<any[]>([]);
+  const [meals, setMeals] = useState<any[]>([]);
+  
+  // Refs for animation targets
+  const headerRef = useRef<HTMLDivElement>(null);
+  const summaryRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const workoutCardsRef = useRef<HTMLDivElement>(null);
+  const templateCardsRef = useRef<HTMLDivElement>(null);
 
-  const handleSaveWorkout = (workout: any) => {
-    console.log("Workout saved:", workout);
-    // Here you would typically save the workout data to your database
+  // Load data from Supabase
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Fetch workouts
+        const workoutData = await workoutService.getWorkouts();
+        setWorkouts(workoutData || []);
+        
+        // Fetch meals
+        const mealData = await mealService.getMeals();
+        setMeals(mealData || []);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    };
+    
+    loadData();
+  }, []);
+
+  // Animation setup
+  useEffect(() => {
+    // Animate header with a subtle fade in and slide down
+    gsap.from(headerRef.current, {
+      y: -50,
+      opacity: 0,
+      duration: 1,
+      ease: "power3.out"
+    });
+    
+    // Staggered animation for cards
+    gsap.fromTo(
+      ".animate-card",
+      { 
+        y: 50,
+        opacity: 0,
+        scale: 0.9
+      },
+      { 
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        stagger: 0.1,
+        duration: 0.8,
+        ease: "back.out(1.7)"
+      }
+    );
+
+    // Animate buttons with bounce
+    gsap.fromTo(
+      ".add-workout-btn, .add-meal-btn",
+      { scale: 0, opacity: 0 },
+      { 
+        scale: 1, 
+        opacity: 1, 
+        duration: 0.5, 
+        ease: "back.out(1.7)",
+        delay: 0.7
+      }
+    );
+  }, []);
+
+  // Tab change animations
+  const handleTabChange = (tab: string) => {
+    // Reset animations for the newly selected tab content
+    gsap.fromTo(
+      `.tab-content-${tab} > *`,
+      { 
+        y: 20,
+        opacity: 0
+      },
+      { 
+        y: 0,
+        opacity: 1,
+        stagger: 0.1,
+        duration: 0.5,
+        ease: "power2.out"
+      }
+    );
   };
 
-  const handleSaveTemplate = (template: any) => {
-    console.log("Template saved:", template);
-    // Here you would typically save the template data to your database
+  const handleSaveWorkout = async (workout: any) => {
+    try {
+      const savedWorkout = await workoutService.addWorkout(workout);
+      console.log("Workout saved:", savedWorkout);
+      // Update local state
+      setWorkouts([savedWorkout, ...workouts]);
+      
+      // Animate the new workout card appearing
+      gsap.fromTo(
+        ".workout-card:first-child",
+        { 
+          y: -20,
+          opacity: 0,
+          scale: 0.95
+        },
+        { 
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.6,
+          ease: "elastic.out(1, 0.75)"
+        }
+      );
+    } catch (error) {
+      console.error("Error saving workout:", error);
+    }
+  };
+
+  const handleSaveTemplate = async (template: any) => {
+    try {
+      // In a real app, you would save this to Supabase
+      console.log("Template saved:", template);
+      
+      // Animate the new template card appearing
+      gsap.fromTo(
+        ".template-card:first-child",
+        { 
+          x: -20,
+          opacity: 0,
+          scale: 0.95
+        },
+        { 
+          x: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.6,
+          ease: "elastic.out(1, 0.75)"
+        }
+      );
+    } catch (error) {
+      console.error("Error saving template:", error);
+    }
+  };
+
+  const handleSaveMeal = async (meal: any) => {
+    try {
+      const savedMeal = await mealService.addMeal(meal);
+      // Update local state
+      setMeals([savedMeal, ...meals]);
+    } catch (error) {
+      console.error("Error saving meal:", error);
+    }
   };
 
   const handleViewWorkoutDetails = (workout: any) => {
     setSelectedWorkout(workout);
     setDetailDialogOpen(true);
+    
+    // Add animation for dialog opening
+    setTimeout(() => {
+      gsap.fromTo(
+        ".workout-detail-content",
+        { scale: 0.9, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.3, ease: "power2.out" }
+      );
+    }, 100);
   };
 
   // Sample workout history data
@@ -110,14 +264,15 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <header className="mb-8">
+      <header className="mb-8" ref={headerRef}>
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Fitness Tracker</h1>
           <div className="flex gap-2">
             <Button 
               variant="outline" 
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 add-workout-btn"
               onClick={() => setWorkoutDialogOpen(true)}
+              data-testid="add-workout-button"
             >
               <PlusCircle className="h-4 w-4" />
               <span>Add Workout</span>
@@ -125,8 +280,9 @@ const Home = () => {
 
             <Button 
               variant="outline" 
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 add-meal-btn"
               onClick={() => setMealDialogOpen(true)}
+              data-testid="add-meal-button"
             >
               <PlusCircle className="h-4 w-4" />
               <span>Log Meal</span>
@@ -151,6 +307,7 @@ const Home = () => {
         <MealForm
           open={mealDialogOpen}
           onOpenChange={setMealDialogOpen}
+          onSave={handleSaveMeal}
           mealToEdit={null}
         />
 
@@ -160,7 +317,11 @@ const Home = () => {
           workout={selectedWorkout}
         />
 
-        <Tabs defaultValue="dashboard" className="w-full">
+        <Tabs 
+          defaultValue="dashboard" 
+          className="w-full" 
+          onValueChange={handleTabChange}
+        >
           <TabsList className="mb-6">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
@@ -176,21 +337,21 @@ const Home = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard" className="space-y-6">
-            <section>
+          <TabsContent value="dashboard" className="space-y-6 tab-content-dashboard">
+            <section ref={summaryRef}>
               <h2 className="text-2xl font-semibold mb-4">Today's Summary</h2>
-              <SummaryCards />
+              <SummaryCards workouts={workouts} meals={meals} />
             </section>
 
-            <section>
+            <section ref={progressRef}>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-semibold">Your Progress</h2>
               </div>
-              <ProgressCharts />
+              <ProgressCharts workouts={workouts} meals={meals} />
             </section>
           </TabsContent>
 
-          <TabsContent value="workouts" className="space-y-6">
+          <TabsContent value="workouts" className="space-y-6 tab-content-workouts">
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-semibold">Workout Templates</h2>
@@ -202,9 +363,9 @@ const Home = () => {
                   <span>Add Template</span>
                 </Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {workoutTemplates.map((template) => (
-                  <Card key={template.id} className="overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" ref={templateCardsRef}>
+                {workoutTemplates.map((template, index) => (
+                  <Card key={template.id} className="overflow-hidden template-card animate-card">
                     <CardHeader className="bg-secondary/5 pb-2">
                       <div className="flex justify-between items-start">
                         <CardTitle>{template.name}</CardTitle>
@@ -255,9 +416,9 @@ const Home = () => {
                   <span>Add Workout</span>
                 </Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {workoutHistory.map((workout) => (
-                  <Card key={workout.id} className="overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" ref={workoutCardsRef}>
+                {workoutHistory.map((workout, index) => (
+                  <Card key={workout.id} className="overflow-hidden workout-card animate-card">
                     <CardHeader className="bg-primary/5 pb-2">
                       <div className="flex justify-between items-start">
                         <CardTitle>{workout.name}</CardTitle>
@@ -284,7 +445,12 @@ const Home = () => {
                       </div>
                     </CardContent>
                     <CardFooter className="bg-muted/20 pt-2 pb-2 flex justify-end">
-                      <Button variant="ghost" size="sm" onClick={() => handleViewWorkoutDetails(workout)}>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleViewWorkoutDetails(workout)}
+                        className="details-btn"
+                      >
                         View Details
                       </Button>
                     </CardFooter>
@@ -294,8 +460,11 @@ const Home = () => {
             </section>
           </TabsContent>
 
-          <TabsContent value="meals" className="space-y-6">
-            <MealDiary />
+          <TabsContent value="meals" className="space-y-6 tab-content-meals">
+            <MealDiary meals={meals} onDeleteMeal={(id) => {
+              mealService.deleteMeal(id);
+              setMeals(meals.filter(meal => meal.id !== id));
+            }} />
           </TabsContent>
         </Tabs>
       </MealDiaryProvider>

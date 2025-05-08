@@ -36,16 +36,24 @@ import {
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import MealForm from "./MealForm";
 
-const MealDiary = () => {
+interface MealDiaryProps {
+  meals?: any[];
+  onDeleteMeal?: (id: any) => void;
+}
+
+const MealDiary = ({ meals: externalMeals, onDeleteMeal }: MealDiaryProps = {}) => {
   const { 
     mealsByDate, 
-    meals, 
+    meals: contextMeals, 
     getTotalCaloriesByDate, 
     getTotalProteinByDate,
     getTotalCarbsByDate,
     getTotalFatByDate,
     deleteMeal 
   } = useMealDiary();
+  
+  // Use external meals if provided, otherwise use meals from context
+  const meals = externalMeals || contextMeals;
   
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [mealDialogOpen, setMealDialogOpen] = useState(false);
@@ -54,11 +62,37 @@ const MealDiary = () => {
   
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
   const readableDate = format(selectedDate, "EEEE, MMMM d, yyyy");
-  const mealsForSelectedDate = mealsByDate[formattedDate] || [];
-  const totalCalories = getTotalCaloriesByDate(formattedDate);
-  const totalProtein = getTotalProteinByDate(formattedDate);
-  const totalCarbs = getTotalCarbsByDate(formattedDate);
-  const totalFat = getTotalFatByDate(formattedDate);
+  
+  // If using external meals, we need to compute meals for the selected date
+  const mealsForSelectedDate = externalMeals 
+    ? externalMeals.filter(meal => {
+        const mealDate = new Date(meal.consumed_at).toISOString().split('T')[0];
+        return mealDate === formattedDate;
+      })
+    : (mealsByDate[formattedDate] || []);
+  
+  // Calculate nutrition totals
+  const calculateTotals = () => {
+    if (externalMeals) {
+      return mealsForSelectedDate.reduce((totals, meal) => {
+        return {
+          calories: totals.calories + (meal.calories || 0),
+          protein: totals.protein + (meal.protein || 0),
+          carbs: totals.carbs + (meal.carbs || 0),
+          fat: totals.fat + (meal.fat || 0)
+        };
+      }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
+    } else {
+      return {
+        calories: getTotalCaloriesByDate(formattedDate),
+        protein: getTotalProteinByDate(formattedDate),
+        carbs: getTotalCarbsByDate(formattedDate),
+        fat: getTotalFatByDate(formattedDate)
+      };
+    }
+  };
+  
+  const { calories: totalCalories, protein: totalProtein, carbs: totalCarbs, fat: totalFat } = calculateTotals();
   
   const navigateDate = (direction: 'next' | 'prev') => {
     setSelectedDate(currentDate => 
@@ -79,12 +113,16 @@ const MealDiary = () => {
   };
   
   const handleDeleteMeal = (id: string) => {
-    deleteMeal(id);
+    if (onDeleteMeal) {
+      onDeleteMeal(id);
+    } else {
+      deleteMeal(id);
+    }
   };
   
   // Group meals by meal type
   const mealsByType = mealsForSelectedDate.reduce((acc: { [key: string]: MealEntry[] }, meal) => {
-    const type = meal.mealType;
+    const type = meal.mealType || "other";
     if (!acc[type]) {
       acc[type] = [];
     }
@@ -92,7 +130,7 @@ const MealDiary = () => {
     return acc;
   }, {});
   
-  const mealTypeOrder = ["breakfast", "lunch", "dinner", "snack"];
+  const mealTypeOrder = ["breakfast", "lunch", "dinner", "snack", "other"];
   const sortedMealTypes = Object.keys(mealsByType).sort(
     (a, b) => mealTypeOrder.indexOf(a) - mealTypeOrder.indexOf(b)
   );
@@ -175,6 +213,7 @@ const MealDiary = () => {
                       {type === "lunch" && "Lunch"}
                       {type === "dinner" && "Dinner"}
                       {type === "snack" && "Snacks"}
+                      {type === "other" && "Other"}
                     </h3>
                     <div className="space-y-3">
                       {mealsByType[type].map((meal) => (
@@ -213,25 +252,42 @@ const MealDiary = () => {
                             <Accordion type="single" collapsible className="w-full">
                               <AccordionItem value="items" className="border-b-0">
                                 <AccordionTrigger className="py-2 text-sm">
-                                  {meal.items.length} food items
+                                  {meal.items ? `${meal.items.length} food items` : "Meal details"}
                                 </AccordionTrigger>
                                 <AccordionContent>
-                                  <div className="space-y-2 text-sm">
-                                    {meal.items.map((item, index) => (
-                                      <div
-                                        key={item.id}
-                                        className="flex justify-between py-1 border-b border-dashed border-muted last:border-0"
-                                      >
-                                        <span className="font-medium">{item.name}</span>
-                                        <div className="flex gap-3">
-                                          <span>{item.calories} cal</span>
-                                          <span className="text-muted-foreground">{item.protein}p</span>
-                                          <span className="text-muted-foreground">{item.carbs}c</span>
-                                          <span className="text-muted-foreground">{item.fat}f</span>
+                                  {meal.items ? (
+                                    <div className="space-y-2 text-sm">
+                                      {meal.items.map((item, index) => (
+                                        <div
+                                          key={item.id}
+                                          className="flex justify-between py-1 border-b border-dashed border-muted last:border-0"
+                                        >
+                                          <span className="font-medium">{item.name}</span>
+                                          <div className="flex gap-3">
+                                            <span>{item.calories} cal</span>
+                                            <span className="text-muted-foreground">{item.protein}p</span>
+                                            <span className="text-muted-foreground">{item.carbs}c</span>
+                                            <span className="text-muted-foreground">{item.fat}f</span>
+                                          </div>
                                         </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className="space-y-2 text-sm">
+                                      <div className="flex justify-between py-1">
+                                        <span className="font-medium">Protein</span>
+                                        <span>{meal.protein || 0}g</span>
                                       </div>
-                                    ))}
-                                  </div>
+                                      <div className="flex justify-between py-1">
+                                        <span className="font-medium">Carbs</span>
+                                        <span>{meal.carbs || 0}g</span>
+                                      </div>
+                                      <div className="flex justify-between py-1">
+                                        <span className="font-medium">Fat</span>
+                                        <span>{meal.fat || 0}g</span>
+                                      </div>
+                                    </div>
+                                  )}
                                 </AccordionContent>
                               </AccordionItem>
                             </Accordion>
