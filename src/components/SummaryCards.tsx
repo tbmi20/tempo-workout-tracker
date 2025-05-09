@@ -44,52 +44,71 @@ const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
 
   // Animations
   useEffect(() => {
-    // Staggered animation for summary cards
-    gsap.fromTo(
-      ".summary-card",
-      { 
-        y: 30,
-        opacity: 0,
-        scale: 0.95
-      },
-      { 
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        stagger: 0.1,
-        duration: 0.8,
-        ease: "back.out(1.7)"
+    // Wait a bit for the DOM to be ready
+    const animateCards = () => {
+      // Check if cards exist before animating them
+      const cards = document.querySelectorAll(".summary-card");
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { 
+            y: 30,
+            opacity: 0,
+            scale: 0.95
+          },
+          { 
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            stagger: 0.1,
+            duration: 0.8,
+            ease: "back.out(1.7)"
+          }
+        );
       }
-    );
 
-    // Animate the numbers counting up
-    gsap.fromTo(
-      ".count-value",
-      { textContent: 0 },
-      {
-        duration: 2,
-        textContent: function() {
-          return this.target.getAttribute("data-value");
-        },
-        snap: { textContent: 1 },
-        stagger: 0.1,
-        ease: "power2.inOut"
+      // Animate number counters
+      const countElements = document.querySelectorAll('.count-value');
+      if (countElements.length > 0) {
+        countElements.forEach(element => {
+          const value = element.getAttribute("data-value");
+          if (value !== null) {
+            gsap.fromTo(
+              element,
+              { textContent: 0 },
+              {
+                duration: 2,
+                textContent: value,
+                snap: { textContent: 1 },
+                ease: "power2.inOut"
+              }
+            );
+          }
+        });
       }
-    );
 
-    // Animate the icons with a subtle bounce
-    gsap.fromTo(
-      ".summary-icon",
-      { scale: 0, rotate: -30 },
-      { 
-        scale: 1, 
-        rotate: 0,
-        duration: 0.8, 
-        ease: "elastic.out(1, 0.3)",
-        stagger: 0.15,
-        delay: 0.2
+      // Animate icons
+      const icons = document.querySelectorAll(".summary-icon");
+      if (icons.length > 0) {
+        gsap.fromTo(
+          icons,
+          { scale: 0, rotate: -30 },
+          { 
+            scale: 1, 
+            rotate: 0,
+            duration: 0.8, 
+            ease: "elastic.out(1, 0.3)",
+            stagger: 0.15
+          }
+        );
       }
-    );
+    };
+
+    // Use a small timeout to ensure DOM is ready
+    const timer = setTimeout(animateCards, 150);
+    
+    // Cleanup function to clear timer if component unmounts before animation
+    return () => clearTimeout(timer);
   }, [workouts, meals]);
 
   return (

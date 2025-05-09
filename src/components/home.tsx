@@ -91,70 +91,88 @@ const Home = () => {
 
   // Animation setup
   useEffect(() => {
-    // Animate header with a subtle fade in and slide down, but ensure it stays visible
-    gsap.fromTo(headerRef.current, 
-      {
-        y: -50,
-        opacity: 0
-      },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 1,
-        ease: "power3.out",
-        clearProps: "all" // This ensures props are cleared after animation so header stays visible
-      }
-    );
-    
-    // Staggered animation for cards
-    gsap.fromTo(
-      ".animate-card",
-      { 
-        y: 50,
-        opacity: 0,
-        scale: 0.9
-      },
-      { 
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        stagger: 0.1,
-        duration: 0.8,
-        ease: "back.out(1.7)"
-      }
-    );
+    // Create a main timeline for better control
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-    // Animate buttons with bounce
-    gsap.fromTo(
-      ".add-workout-btn, .add-meal-btn",
-      { scale: 0, opacity: 0 },
-      { 
-        scale: 1, 
-        opacity: 1, 
-        duration: 0.5, 
-        ease: "back.out(1.7)",
-        delay: 0.7
+    // Only animate the header if it exists
+    if (headerRef.current) {
+      tl.fromTo(headerRef.current, 
+        {
+          y: -50,
+          opacity: 0
+        },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1,
+          clearProps: "all" // This ensures props are cleared after animation so header stays visible
+        }
+      );
+    }
+    
+    // Wait a bit for DOM elements to be properly rendered
+    setTimeout(() => {
+      // Check if card elements exist before animating them
+      const cards = document.querySelectorAll(".animate-card");
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { 
+            y: 50,
+            opacity: 0,
+            scale: 0.9
+          },
+          { 
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            stagger: 0.1,
+            duration: 0.8,
+            ease: "back.out(1.7)"
+          }
+        );
       }
-    );
+
+      // Check if button elements exist before animating them
+      const buttons = document.querySelectorAll(".add-workout-btn, .add-meal-btn");
+      if (buttons.length > 0) {
+        gsap.fromTo(
+          buttons,
+          { scale: 0, opacity: 0 },
+          { 
+            scale: 1, 
+            opacity: 1, 
+            duration: 0.5, 
+            ease: "back.out(1.7)"
+          }
+        );
+      }
+    }, 200); // Small delay to ensure DOM is ready
   }, []);
 
   // Tab change animations
   const handleTabChange = (tab: string) => {
-    // Reset animations for the newly selected tab content
-    gsap.fromTo(
-      `.tab-content-${tab} > *`,
-      { 
-        y: 20,
-        opacity: 0
-      },
-      { 
-        y: 0,
-        opacity: 1,
-        stagger: 0.1,
-        duration: 0.5,
-        ease: "power2.out"
+    // Wait a small amount of time for the tab content to render
+    setTimeout(() => {
+      // Check if tab content elements exist before animating them
+      const tabElements = document.querySelectorAll(`.tab-content-${tab} > *`);
+      if (tabElements.length > 0) {
+        gsap.fromTo(
+          tabElements,
+          { 
+            y: 20,
+            opacity: 0
+          },
+          { 
+            y: 0,
+            opacity: 1,
+            stagger: 0.1,
+            duration: 0.5,
+            ease: "power2.out"
+          }
+        );
       }
-    );
+    }, 100); // Small delay to ensure DOM elements are ready
   };
 
   const handleSaveWorkout = async (workout: any) => {

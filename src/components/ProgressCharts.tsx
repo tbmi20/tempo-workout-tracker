@@ -78,8 +78,14 @@ const ProgressCharts = ({ workouts = [], meals = [] }: ProgressChartsProps) => {
 
   // GSAP animations
   useEffect(() => {
+    // Only animate if the chart container exists
+    if (!chartRef.current) return;
+
+    // Animation timeline for better control and sequencing
+    const tl = gsap.timeline();
+    
     // Animate the chart container
-    gsap.fromTo(
+    tl.fromTo(
       chartRef.current,
       { 
         opacity: 0,
@@ -93,32 +99,38 @@ const ProgressCharts = ({ workouts = [], meals = [] }: ProgressChartsProps) => {
       }
     );
 
-    // Animate the SVG elements inside charts with staggered delay
-    gsap.fromTo(
-      ".recharts-surface",
-      { opacity: 0, scale: 0.9 },
-      { 
-        opacity: 1,
-        scale: 1,
-        duration: 1,
-        ease: "elastic.out(1, 0.8)",
-        stagger: 0.2,
-        delay: 0.3
-      }
-    );
+    // Check if chart elements exist before animating them
+    const chartSurfaces = document.querySelectorAll(".recharts-surface");
+    if (chartSurfaces.length > 0) {
+      tl.fromTo(
+        chartSurfaces,
+        { opacity: 0, scale: 0.9 },
+        { 
+          opacity: 1,
+          scale: 1,
+          duration: 1,
+          ease: "elastic.out(1, 0.8)",
+          stagger: 0.2
+        },
+        "-=0.4" // Overlap with previous animation
+      );
+    }
 
-    // Animate the chart lines/bars with drawing effect
-    gsap.fromTo(
-      ".recharts-layer",
-      { opacity: 0 },
-      { 
-        opacity: 1,
-        duration: 1.5,
-        stagger: 0.05,
-        delay: 0.5,
-        ease: "power2.inOut"
-      }
-    );
+    // Check if chart layers exist before animating them
+    const chartLayers = document.querySelectorAll(".recharts-layer");
+    if (chartLayers.length > 0) {
+      tl.fromTo(
+        chartLayers,
+        { opacity: 0 },
+        { 
+          opacity: 1,
+          duration: 1.5,
+          stagger: 0.05,
+          ease: "power2.inOut"
+        },
+        "-=0.7" // Overlap with previous animation
+      );
+    }
   }, [workouts, meals]);
 
   const workoutData = processWorkoutData();
@@ -133,17 +145,23 @@ const ProgressCharts = ({ workouts = [], meals = [] }: ProgressChartsProps) => {
   ] : []; // In a real app, you'd process real strength data here
 
   const handleTabChange = (tab: string) => {
-    // Reset animations for the newly selected chart tab
-    gsap.fromTo(
-      `.${tab}-chart .recharts-surface`,
-      { opacity: 0.5, scale: 0.95 },
-      { 
-        opacity: 1,
-        scale: 1,
-        duration: 0.5,
-        ease: "back.out(1.7)"
+    // Wait a small amount of time for the tab content to be visible in the DOM
+    setTimeout(() => {
+      // Check if the elements exist before animating
+      const surfaces = document.querySelectorAll(`.${tab}-chart .recharts-surface`);
+      if (surfaces.length > 0) {
+        gsap.fromTo(
+          surfaces,
+          { opacity: 0.5, scale: 0.95 },
+          { 
+            opacity: 1,
+            scale: 1,
+            duration: 0.5,
+            ease: "back.out(1.7)"
+          }
+        );
       }
-    );
+    }, 100); // Small delay to ensure DOM elements are ready
   };
 
   return (
