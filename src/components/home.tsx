@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, BarChart3, Dumbbell, Utensils, Calendar, Edit, Clock, Copy, LogIn, LogOut, User } from "lucide-react";
@@ -22,7 +22,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import gsap from "gsap";
 import { workoutService, mealService, templateService } from "@/lib/supabase";
 import { toast } from "@/components/ui/use-toast";
 
@@ -43,13 +42,6 @@ const Home = () => {
   // State for editing
   const [editingWorkout, setEditingWorkout] = useState<any>(null);
   const [editingTemplate, setEditingTemplate] = useState<any>(null);
-  
-  // Refs for animation targets
-  const headerRef = useRef<HTMLDivElement>(null);
-  const summaryRef = useRef<HTMLDivElement>(null);
-  const progressRef = useRef<HTMLDivElement>(null);
-  const workoutCardsRef = useRef<HTMLDivElement>(null);
-  const templateCardsRef = useRef<HTMLDivElement>(null);
 
   // Handle user sign out
   const handleSignOut = async () => {
@@ -89,137 +81,6 @@ const Home = () => {
     loadData();
   }, []);
 
-  // Animation setup with state tracking to prevent duplicate animations
-  useEffect(() => {
-    // Check if home animations have already run
-    if ((window as any)._homeAnimationsRun) return;
-    
-    // Mark that we've run the animations
-    (window as any)._homeAnimationsRun = true;
-    
-    // Create a main timeline for better control
-    const tl = gsap.timeline({ 
-      defaults: { ease: "power3.out" },
-      onComplete: () => {
-        console.log('Home animations complete');
-      }
-    });
-
-    // Only animate the header if it exists
-    if (headerRef.current) {
-      tl.fromTo(headerRef.current, 
-        {
-          y: -50,
-          opacity: 0
-        },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 1,
-          clearProps: "all" // This ensures props are cleared after animation so header stays visible
-        }
-      );
-    }
-    
-    // Wait a bit for DOM elements to be properly rendered
-    const animateContent = () => {
-      // Create a separate timeline for content animations
-      const contentTl = gsap.timeline();
-      
-      // Check if card elements exist before animating them
-      const cards = document.querySelectorAll(".animate-card");
-      if (cards.length > 0) {
-        contentTl.fromTo(
-          cards,
-          { 
-            y: 50,
-            opacity: 0,
-            scale: 0.9
-          },
-          { 
-            y: 0,
-            opacity: 1,
-            scale: 1,
-            stagger: 0.1,
-            duration: 0.8,
-            ease: "back.out(1.7)",
-            clearProps: "all" // Clear props to avoid conflicts
-          }
-        );
-      }
-
-      // Check if button elements exist before animating them
-      const buttons = document.querySelectorAll(".add-workout-btn, .add-meal-btn");
-      if (buttons.length > 0) {
-        contentTl.fromTo(
-          buttons,
-          { scale: 0, opacity: 0 },
-          { 
-            scale: 1, 
-            opacity: 1, 
-            duration: 0.5, 
-            ease: "back.out(1.7)",
-            clearProps: "transform,opacity" // Clear props to avoid conflicts
-          },
-          "-=0.4" // Slightly overlap with previous animation
-        );
-      }
-    };
-    
-    // Delay to ensure DOM is ready
-    const timer = setTimeout(animateContent, 200);
-    
-    // Cleanup function to reset animation flag after unmount
-    return () => {
-      clearTimeout(timer);
-      
-      // Allow reanimation after a delay if component gets unmounted and remounted
-      setTimeout(() => {
-        (window as any)._homeAnimationsRun = false;
-      }, 500);
-    };
-  }, []);
-
-  // Tab change animations with state tracking to prevent duplicates
-  const handleTabChange = (tab: string) => {
-    // Create a unique key for this specific tab animation
-    const tabAnimKey = `_homeTabAnimated_${tab}`;
-    
-    // Only run animation if we haven't animated this tab recently
-    if ((window as any)[tabAnimKey]) return;
-    
-    // Mark this tab as recently animated
-    (window as any)[tabAnimKey] = true;
-    
-    // Wait a small amount of time for the tab content to render
-    setTimeout(() => {
-      // Check if tab content elements exist before animating them
-      const tabElements = document.querySelectorAll(`.tab-content-${tab} > *`);
-      if (tabElements.length > 0) {
-        gsap.fromTo(
-          tabElements,
-          { 
-            y: 20,
-            opacity: 0
-          },
-          { 
-            y: 0,
-            opacity: 1,
-            stagger: 0.1,
-            duration: 0.5,
-            ease: "power2.out",
-            clearProps: "all" // Clear props after animation
-          }
-        );
-      }
-      
-      // Reset the animation flag after a delay
-      setTimeout(() => {
-        (window as any)[tabAnimKey] = false;
-      }, 300);
-    }, 100); // Small delay to ensure DOM elements are ready
-  };
-
   const handleSaveWorkout = async (workout: any) => {
     try {
       let savedWorkout;
@@ -233,50 +94,35 @@ const Home = () => {
         
         // Update the workout in the existing array
         setWorkouts(workouts.map(w => w.id === editingWorkout.id ? savedWorkout : w));
-        setEditingWorkout(null); // Clear editing state
         
         toast({
           title: "Workout updated",
-          description: "Your workout has been updated successfully.",
+          description: `Your workout "${workout.name}" has been updated.`,
         });
       } else {
-        // Create a new workout
+        // Add new workout
         savedWorkout = await workoutService.addWorkout({
-          name: workout.exercises[0]?.name || "Workout",
-          exercises: workout.exercises,
+          ...workout,
           completed_at: new Date(workout.date).toISOString()
         });
         
-        // Add new workout to the array
+        // Add the new workout to the array
         setWorkouts([savedWorkout, ...workouts]);
         
         toast({
           title: "Workout added",
-          description: "Your workout has been saved successfully.",
+          description: `Your workout "${workout.name}" has been added.`,
         });
       }
       
-      // Animate the new workout card appearing
-      gsap.fromTo(
-        ".workout-card:first-child",
-        { 
-          y: -20,
-          opacity: 0,
-          scale: 0.95
-        },
-        { 
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.6,
-          ease: "elastic.out(1, 0.75)"
-        }
-      );
+      // Close the dialog and reset editing state
+      setWorkoutDialogOpen(false);
+      setEditingWorkout(null);
     } catch (error) {
       console.error("Error saving workout:", error);
       toast({
         title: "Error saving workout",
-        description: "Something went wrong while saving your workout.",
+        description: "Could not save your workout. Please try again later.",
         variant: "destructive",
       });
     }
@@ -292,46 +138,32 @@ const Home = () => {
         
         // Update the template in the existing array
         setTemplates(templates.map(t => t.id === editingTemplate.id ? savedTemplate : t));
-        setEditingTemplate(null); // Clear editing state
         
         toast({
           title: "Template updated",
-          description: "Your workout template has been updated successfully.",
+          description: `Your template "${template.name}" has been updated.`,
         });
       } else {
-        // Create a new template
+        // Add new template
         savedTemplate = await templateService.addTemplate(template);
         
-        // Add new template to the array
+        // Add the new template to the array
         setTemplates([savedTemplate, ...templates]);
         
         toast({
-          title: "Template created",
-          description: "Your workout template has been saved successfully.",
+          title: "Template added",
+          description: `Your template "${template.name}" has been added.`,
         });
       }
       
-      // Animate the new template card appearing
-      gsap.fromTo(
-        ".template-card:first-child",
-        { 
-          x: -20,
-          opacity: 0,
-          scale: 0.95
-        },
-        { 
-          x: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.6,
-          ease: "elastic.out(1, 0.75)"
-        }
-      );
+      // Close the dialog and reset editing state
+      setTemplateDialogOpen(false);
+      setEditingTemplate(null);
     } catch (error) {
       console.error("Error saving template:", error);
       toast({
         title: "Error saving template",
-        description: "Something went wrong while saving your workout template.",
+        description: "Could not save your template. Please try again later.",
         variant: "destructive",
       });
     }
@@ -339,36 +171,77 @@ const Home = () => {
 
   const handleSaveMeal = async (meal: any) => {
     try {
-      const savedMeal = await mealService.addMeal(meal);
-      // Update local state
+      // Add new meal
+      const savedMeal = await mealService.addMeal({
+        ...meal,
+        consumed_at: new Date(meal.date).toISOString()
+      });
+      
+      // Add the new meal to the array
       setMeals([savedMeal, ...meals]);
       
+      // Close the dialog
+      setMealDialogOpen(false);
+      
       toast({
-        title: "Meal logged",
-        description: "Your meal has been logged successfully.",
+        title: "Meal added",
+        description: `Your meal "${meal.name}" has been added.`,
       });
     } catch (error) {
       console.error("Error saving meal:", error);
       toast({
-        title: "Error logging meal",
-        description: "Something went wrong while logging your meal.",
+        title: "Error saving meal",
+        description: "Could not save your meal. Please try again later.",
         variant: "destructive",
       });
     }
   };
 
-  const handleViewWorkoutDetails = (workout: any) => {
-    setSelectedWorkout(workout);
-    setDetailDialogOpen(true);
-    
-    // Add animation for dialog opening
-    setTimeout(() => {
-      gsap.fromTo(
-        ".workout-detail-content",
-        { scale: 0.9, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.3, ease: "power2.out" }
-      );
-    }, 100);
+  const handleDeleteWorkout = async (id: string) => {
+    try {
+      await workoutService.deleteWorkout(id);
+      
+      // Remove the workout from the array
+      setWorkouts(workouts.filter(workout => workout.id !== id));
+      
+      // Close the detail dialog if it's open
+      if (detailDialogOpen && selectedWorkout?.id === id) {
+        setDetailDialogOpen(false);
+      }
+      
+      toast({
+        title: "Workout deleted",
+        description: "Your workout has been deleted.",
+      });
+    } catch (error) {
+      console.error("Error deleting workout:", error);
+      toast({
+        title: "Error deleting workout",
+        description: "Could not delete your workout. Please try again later.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteTemplate = async (id: string) => {
+    try {
+      await templateService.deleteTemplate(id);
+      
+      // Remove the template from the array
+      setTemplates(templates.filter(template => template.id !== id));
+      
+      toast({
+        title: "Template deleted",
+        description: "Your workout template has been deleted.",
+      });
+    } catch (error) {
+      console.error("Error deleting template:", error);
+      toast({
+        title: "Error deleting template",
+        description: "Could not delete your template. Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEditWorkout = (workout: any) => {
@@ -381,91 +254,49 @@ const Home = () => {
     setTemplateDialogOpen(true);
   };
 
-  const handleCopyTemplate = async (template: any) => {
-    try {
-      // Create a copy with a new name
-      const newTemplate = {
-        name: `${template.name} (Copy)`,
-        exercises: template.template_exercises || []
-      };
-      
-      const savedTemplate = await templateService.addTemplate(newTemplate);
-      setTemplates([savedTemplate, ...templates]);
-      
-      toast({
-        title: "Template copied",
-        description: "Your workout template has been duplicated.",
-      });
-    } catch (error) {
-      console.error("Error copying template:", error);
-      toast({
-        title: "Error copying template",
-        description: "Something went wrong while copying your template.",
-        variant: "destructive",
-      });
-    }
+  const handleViewWorkoutDetail = (workout: any) => {
+    setSelectedWorkout(workout);
+    setDetailDialogOpen(true);
   };
 
-  const handleUseTemplate = async (template: any) => {
-    try {
-      const newWorkout = await templateService.useTemplate(template.id);
-      setWorkouts([newWorkout, ...workouts]);
-      
-      toast({
-        title: "Workout started",
-        description: "A new workout has been created from your template.",
-      });
-    } catch (error) {
-      console.error("Error using template:", error);
-      toast({
-        title: "Error starting workout",
-        description: "Something went wrong while creating a workout from your template.",
-        variant: "destructive",
-      });
-    }
+  const handleUseTemplate = (template: any) => {
+    // Convert template to workout format
+    const workout = {
+      name: template.name,
+      duration: 60, // Default duration
+      notes: `Created from template: ${template.name}`,
+      date: new Date().toISOString().split('T')[0],
+      exercises: template.template_exercises?.map((exercise: any) => ({
+        name: exercise.name,
+        sets: exercise.sets,
+        reps: 10, // Default reps
+        weight: null
+      })) || []
+    };
+    
+    // Open the workout form with pre-populated data
+    setEditingWorkout(workout);
+    setWorkoutDialogOpen(true);
   };
 
-  const handleDeleteWorkout = async (id: string) => {
-    try {
-      await workoutService.deleteWorkout(id);
-      setWorkouts(workouts.filter(workout => workout.id !== id));
-      
-      toast({
-        title: "Workout deleted",
-        description: "Your workout has been deleted successfully.",
-      });
-    } catch (error) {
-      console.error("Error deleting workout:", error);
-      toast({
-        title: "Error deleting workout",
-        description: "Something went wrong while deleting your workout.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteTemplate = async (id: string) => {
-    try {
-      await templateService.deleteTemplate(id);
-      setTemplates(templates.filter(template => template.id !== id));
-      
-      toast({
-        title: "Template deleted",
-        description: "Your workout template has been deleted successfully.",
-      });
-    } catch (error) {
-      console.error("Error deleting template:", error);
-      toast({
-        title: "Error deleting template",
-        description: "Something went wrong while deleting your template.",
-        variant: "destructive",
-      });
-    }
+  const handleDuplicateTemplate = (template: any) => {
+    // Create a copy of the template
+    const newTemplate = {
+      name: `Copy of ${template.name}`,
+      exercises: template.template_exercises?.map((exercise: any) => ({
+        name: exercise.name,
+        sets: exercise.sets
+      })) || []
+    };
+    
+    // Open the template form with pre-populated data
+    setEditingTemplate(newTemplate);
+    setTemplateDialogOpen(true);
   };
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <header className="mb-8 border-b pb-4 pt-2 bg-background sticky top-0" ref={headerRef}>
+      <header className="mb-8 border-b pb-4 pt-2 bg-background sticky top-0">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-primary">Tempo</h1>
           <div className="flex items-center gap-4">
@@ -552,7 +383,6 @@ const Home = () => {
         <Tabs 
           defaultValue="dashboard" 
           className="w-full" 
-          onValueChange={handleTabChange}
         >
           <TabsList className="mb-6">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
@@ -569,13 +399,13 @@ const Home = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard" className="space-y-6 tab-content-dashboard">
-            <section ref={summaryRef}>
+          <TabsContent value="dashboard" className="space-y-6">
+            <section>
               <h2 className="text-2xl font-semibold mb-4">Today's Summary</h2>
               <SummaryCards workouts={workouts} meals={meals} />
             </section>
 
-            <section ref={progressRef}>
+            <section>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-semibold">Your Progress</h2>
               </div>
@@ -583,7 +413,7 @@ const Home = () => {
             </section>
           </TabsContent>
 
-          <TabsContent value="workouts" className="space-y-6 tab-content-workouts">
+          <TabsContent value="workouts" className="space-y-6">
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-semibold">Workout Templates</h2>
@@ -598,9 +428,9 @@ const Home = () => {
                   <span>Add Template</span>
                 </Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" ref={templateCardsRef}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {templates.map((template) => (
-                  <Card key={template.id} className="overflow-hidden template-card animate-card">
+                  <Card key={template.id} className="overflow-hidden template-card">
                     <CardHeader className="bg-secondary/5 pb-2">
                       <div className="flex justify-between items-start">
                         <CardTitle>{template.name}</CardTitle>
@@ -615,7 +445,7 @@ const Home = () => {
                           <Button 
                             variant="ghost" 
                             size="icon"
-                            onClick={() => handleCopyTemplate(template)}
+                            onClick={() => handleDuplicateTemplate(template)}
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
@@ -676,9 +506,9 @@ const Home = () => {
                   <span>Add Workout</span>
                 </Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" ref={workoutCardsRef}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {workouts.map((workout) => (
-                  <Card key={workout.id} className="overflow-hidden workout-card animate-card">
+                  <Card key={workout.id} className="overflow-hidden workout-card">
                     <CardHeader className="bg-primary/5 pb-2">
                       <div className="flex justify-between items-start">
                         <CardTitle>{workout.name}</CardTitle>
@@ -722,7 +552,7 @@ const Home = () => {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        onClick={() => handleViewWorkoutDetails(workout)}
+                        onClick={() => handleViewWorkoutDetail(workout)}
                         className="details-btn"
                       >
                         View Details
@@ -740,7 +570,7 @@ const Home = () => {
             </section>
           </TabsContent>
 
-          <TabsContent value="meals" className="space-y-6 tab-content-meals">
+          <TabsContent value="meals" className="space-y-6">
             <MealDiary meals={meals} onDeleteMeal={(id) => {
               mealService.deleteMeal(id);
               setMeals(meals.filter(meal => meal.id !== id));

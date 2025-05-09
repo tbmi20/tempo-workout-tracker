@@ -1,6 +1,6 @@
 # Tempo Workout Tracker
 
-A modern fitness tracking application built with React, TypeScript, and Vite that enables users to track their workouts, nutrition, and fitness progress with beautiful animations and a robust backend.
+A modern fitness tracking application built with React, TypeScript, and Vite that enables users to track their workouts, nutrition, and fitness progress with a clean interface and a robust backend.
 
 ## Overview
 
@@ -17,8 +17,9 @@ Tempo Workout Tracker is a comprehensive fitness application that helps users ma
 - **Build Tool**: Vite
 - **UI Components**: Radix UI + Shadcn UI components
 - **Styling**: Tailwind CSS
-- **Animations**: GSAP (GreenSock Animation Platform)
 - **Forms**: React Hook Form with Zod validation
+
+> **Note:** Animations using GSAP have been removed from the application to improve stability and performance.
 - **Data Visualization**: Recharts for interactive charts
 - **Backend**: Supabase (PostgreSQL database)
 - **Authentication**: Supabase Auth
@@ -31,13 +32,13 @@ Tempo Workout Tracker is a comprehensive fitness application that helps users ma
 - `/src`: Source code
   - `/components`: UI components
     - `/ui`: Reusable UI components from Shadcn UI
-    - `home.tsx`: Main application homepage with GSAP animations
+    - `home.tsx`: Main application homepage
     - `WorkoutForm.tsx`: Form for logging workouts
     - `WorkoutTemplateForm.tsx`: Form for creating workout templates
     - `MealForm.tsx`: Form for logging meals
     - `MealDiary.tsx`: Component for viewing meal history
-    - `ProgressCharts.tsx`: Animated charts for visualizing progress
-    - `SummaryCards.tsx`: Daily summary statistics with animated counters
+    - `ProgressCharts.tsx`: Charts for visualizing progress
+    - `SummaryCards.tsx`: Daily summary statistics
     - `WorkoutDetailDialog.tsx`: Detailed view of individual workouts
   - `/contexts`: React contexts for state management
     - `MealDiaryContext.tsx`: Context for meal diary state management
@@ -59,7 +60,7 @@ Tempo Workout Tracker is a comprehensive fitness application that helps users ma
 ### Workout Tracking
 - Log completed workouts with exercises, sets, reps, and weights
 - Create and manage reusable workout templates
-- View workout history with animated cards
+- View workout history with clean, readable cards
 - Real-time synchronization with Supabase database
 - Edit, delete, and view detailed workout information
 - Copy templates to create variations of established routines
@@ -72,13 +73,13 @@ Tempo Workout Tracker is a comprehensive fitness application that helps users ma
 - Delete meal entries when needed
 
 ### Progress Visualization
-- View fitness progress through interactive animated charts
+- View fitness progress through interactive charts
 - Track key metrics like workout frequency, duration, and intensity
 - Monitor nutrition trends with customizable date ranges
 - Strength progression tracking over time
 
 ### Dashboard
-- Summary view of daily activity with animated statistics
+- Summary view of daily activity with key statistics
 - Quick access to workout and meal logging
 - Beautiful GSAP animations for a polished user experience
 
@@ -89,13 +90,12 @@ Tempo Workout Tracker is a comprehensive fitness application that helps users ma
 - Convert templates into actual workouts with a single click
 - Organize exercise routines for efficient workout planning
 
-### Beautiful UI Animations
-- GSAP-powered entrance animations for cards and elements
-- Animated number counters for statistics
+### Clean UI Design
+- Simple and effective card layouts for workout and nutrition data
+- Straightforward statistics display
 - Smooth transitions between tabs and sections
-- Interactive chart animations
-- Elastic and bounce effects for an engaging user interface
-- Toast notifications with subtle animations for user feedback
+- Interactive charts for data visualization
+- Toast notifications for user feedback
 
 ### User Feedback
 - Comprehensive toast notification system for all user actions

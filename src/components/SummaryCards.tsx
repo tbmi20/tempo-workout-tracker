@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import {
   Card,
   CardContent,
@@ -7,7 +7,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Activity, Dumbbell, Utensils, Flame } from "lucide-react";
-import gsap from "gsap";
 
 interface SummaryCardsProps {
   workouts?: any[];
@@ -15,8 +14,6 @@ interface SummaryCardsProps {
 }
 
 const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
-  const summaryRef = useRef<HTMLDivElement>(null);
-
   // Calculate statistics
   const today = new Date().setHours(0, 0, 0, 0);
   
@@ -42,96 +39,8 @@ const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
     return total + (meal.calories || 0);
   }, 0);
 
-  // Animations - with state tracking to prevent duplicate animations
-  useEffect(() => {
-    // Add a flag to track if animations have run
-    if ((window as any)._summaryCardsAnimated) return;
-    
-    // Function to animate the cards and their contents
-    const animateCards = () => {
-      // Set the flag that animations have been run
-      (window as any)._summaryCardsAnimated = true;
-      
-      // Create a master timeline for all animations
-      const masterTimeline = gsap.timeline();
-      
-      // Check if cards exist before animating them
-      const cards = document.querySelectorAll(".summary-card");
-      if (cards.length > 0) {
-        masterTimeline.fromTo(
-          cards,
-          { 
-            y: 30,
-            opacity: 0,
-            scale: 0.95
-          },
-          { 
-            y: 0,
-            opacity: 1,
-            scale: 1,
-            stagger: 0.1,
-            duration: 0.8,
-            ease: "back.out(1.7)"
-          }
-        );
-      }
-
-      // Animate number counters
-      const countElements = document.querySelectorAll('.count-value');
-      if (countElements.length > 0) {
-        countElements.forEach(element => {
-          const value = element.getAttribute("data-value");
-          if (value !== null) {
-            masterTimeline.fromTo(
-              element,
-              { textContent: 0 },
-              {
-                duration: 2,
-                textContent: value,
-                snap: { textContent: 1 },
-                ease: "power2.inOut"
-              },
-              "-=1.5" // Overlap with previous animation
-            );
-          }
-        });
-      }
-
-      // Animate icons
-      const icons = document.querySelectorAll(".summary-icon");
-      if (icons.length > 0) {
-        masterTimeline.fromTo(
-          icons,
-          { scale: 0, rotate: -30 },
-          { 
-            scale: 1, 
-            rotate: 0,
-            duration: 0.8, 
-            ease: "elastic.out(1, 0.3)",
-            stagger: 0.15
-          },
-          "-=1.8" // Overlap with previous animation
-        );
-      }
-    };
-
-    // Use a small timeout to ensure DOM is ready
-    const timer = setTimeout(animateCards, 150);
-    
-    // Cleanup function to clear timer if component unmounts before animation
-    return () => {
-      clearTimeout(timer);
-      
-      // Reset animation flag on unmount so animations can run again if needed
-      // Only reset after a delay to prevent immediate re-animations
-      setTimeout(() => {
-        (window as any)._summaryCardsAnimated = false;
-      }, 300);
-    };
-  }, [workouts, meals]);
-
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" ref={summaryRef}>
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card className="summary-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div className="space-y-1">
@@ -143,7 +52,7 @@ const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold count-value" data-value={todaysWorkouts.length}>
+          <div className="text-2xl font-bold">
             {todaysWorkouts.length}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
@@ -167,7 +76,7 @@ const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold count-value" data-value={workoutMinutes}>
+          <div className="text-2xl font-bold">
             {workoutMinutes}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
@@ -191,7 +100,7 @@ const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold count-value" data-value={todaysMeals.length}>
+          <div className="text-2xl font-bold">
             {todaysMeals.length}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
@@ -215,7 +124,7 @@ const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold count-value" data-value={caloriesConsumed}>
+          <div className="text-2xl font-bold">
             {caloriesConsumed}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
