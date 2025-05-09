@@ -89,10 +89,21 @@ const Home = () => {
     loadData();
   }, []);
 
-  // Animation setup
+  // Animation setup with state tracking to prevent duplicate animations
   useEffect(() => {
+    // Check if home animations have already run
+    if ((window as any)._homeAnimationsRun) return;
+    
+    // Mark that we've run the animations
+    (window as any)._homeAnimationsRun = true;
+    
     // Create a main timeline for better control
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    const tl = gsap.timeline({ 
+      defaults: { ease: "power3.out" },
+      onComplete: () => {
+        console.log('Home animations complete');
+      }
+    });
 
     // Only animate the header if it exists
     if (headerRef.current) {
@@ -111,11 +122,14 @@ const Home = () => {
     }
     
     // Wait a bit for DOM elements to be properly rendered
-    setTimeout(() => {
+    const animateContent = () => {
+      // Create a separate timeline for content animations
+      const contentTl = gsap.timeline();
+      
       // Check if card elements exist before animating them
       const cards = document.querySelectorAll(".animate-card");
       if (cards.length > 0) {
-        gsap.fromTo(
+        contentTl.fromTo(
           cards,
           { 
             y: 50,
@@ -128,7 +142,8 @@ const Home = () => {
             scale: 1,
             stagger: 0.1,
             duration: 0.8,
-            ease: "back.out(1.7)"
+            ease: "back.out(1.7)",
+            clearProps: "all" // Clear props to avoid conflicts
           }
         );
       }
@@ -136,22 +151,46 @@ const Home = () => {
       // Check if button elements exist before animating them
       const buttons = document.querySelectorAll(".add-workout-btn, .add-meal-btn");
       if (buttons.length > 0) {
-        gsap.fromTo(
+        contentTl.fromTo(
           buttons,
           { scale: 0, opacity: 0 },
           { 
             scale: 1, 
             opacity: 1, 
             duration: 0.5, 
-            ease: "back.out(1.7)"
-          }
+            ease: "back.out(1.7)",
+            clearProps: "transform,opacity" // Clear props to avoid conflicts
+          },
+          "-=0.4" // Slightly overlap with previous animation
         );
       }
-    }, 200); // Small delay to ensure DOM is ready
+    };
+    
+    // Delay to ensure DOM is ready
+    const timer = setTimeout(animateContent, 200);
+    
+    // Cleanup function to reset animation flag after unmount
+    return () => {
+      clearTimeout(timer);
+      
+      // Allow reanimation after a delay if component gets unmounted and remounted
+      setTimeout(() => {
+        (window as any)._homeAnimationsRun = false;
+      }, 500);
+    };
   }, []);
 
-  // Tab change animations
+  // Tab change animations with state tracking to prevent duplicates
   const handleTabChange = (tab: string) => {
+    // Create a unique key for this specific tab animation
+    const tabAnimKey = `_homeTabAnimated_${tab}`;
+    
+    // Only run animation if we haven't animated this tab recently
+    if ((window as any)[tabAnimKey]) return;
+    
+    // Mark this tab as recently animated
+    (window as any)[tabAnimKey] = true;
+    
     // Wait a small amount of time for the tab content to render
     setTimeout(() => {
       // Check if tab content elements exist before animating them
@@ -168,10 +207,16 @@ const Home = () => {
             opacity: 1,
             stagger: 0.1,
             duration: 0.5,
-            ease: "power2.out"
+            ease: "power2.out",
+            clearProps: "all" // Clear props after animation
           }
         );
       }
+      
+      // Reset the animation flag after a delay
+      setTimeout(() => {
+        (window as any)[tabAnimKey] = false;
+      }, 300);
     }, 100); // Small delay to ensure DOM elements are ready
   };
 

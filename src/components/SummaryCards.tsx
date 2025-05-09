@@ -42,14 +42,23 @@ const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
     return total + (meal.calories || 0);
   }, 0);
 
-  // Animations
+  // Animations - with state tracking to prevent duplicate animations
   useEffect(() => {
-    // Wait a bit for the DOM to be ready
+    // Add a flag to track if animations have run
+    if ((window as any)._summaryCardsAnimated) return;
+    
+    // Function to animate the cards and their contents
     const animateCards = () => {
+      // Set the flag that animations have been run
+      (window as any)._summaryCardsAnimated = true;
+      
+      // Create a master timeline for all animations
+      const masterTimeline = gsap.timeline();
+      
       // Check if cards exist before animating them
       const cards = document.querySelectorAll(".summary-card");
       if (cards.length > 0) {
-        gsap.fromTo(
+        masterTimeline.fromTo(
           cards,
           { 
             y: 30,
@@ -73,7 +82,7 @@ const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
         countElements.forEach(element => {
           const value = element.getAttribute("data-value");
           if (value !== null) {
-            gsap.fromTo(
+            masterTimeline.fromTo(
               element,
               { textContent: 0 },
               {
@@ -81,7 +90,8 @@ const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
                 textContent: value,
                 snap: { textContent: 1 },
                 ease: "power2.inOut"
-              }
+              },
+              "-=1.5" // Overlap with previous animation
             );
           }
         });
@@ -90,7 +100,7 @@ const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
       // Animate icons
       const icons = document.querySelectorAll(".summary-icon");
       if (icons.length > 0) {
-        gsap.fromTo(
+        masterTimeline.fromTo(
           icons,
           { scale: 0, rotate: -30 },
           { 
@@ -99,7 +109,8 @@ const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
             duration: 0.8, 
             ease: "elastic.out(1, 0.3)",
             stagger: 0.15
-          }
+          },
+          "-=1.8" // Overlap with previous animation
         );
       }
     };
@@ -108,7 +119,15 @@ const SummaryCards = ({ workouts = [], meals = [] }: SummaryCardsProps) => {
     const timer = setTimeout(animateCards, 150);
     
     // Cleanup function to clear timer if component unmounts before animation
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      
+      // Reset animation flag on unmount so animations can run again if needed
+      // Only reset after a delay to prevent immediate re-animations
+      setTimeout(() => {
+        (window as any)._summaryCardsAnimated = false;
+      }, 300);
+    };
   }, [workouts, meals]);
 
   return (

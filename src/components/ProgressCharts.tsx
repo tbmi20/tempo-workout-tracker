@@ -76,13 +76,23 @@ const ProgressCharts = ({ workouts = [], meals = [] }: ProgressChartsProps) => {
     return mealsByDay;
   };
 
-  // GSAP animations
+  // GSAP animations with state tracking to prevent duplicate animations
   useEffect(() => {
+    // Check if animations have already run
+    if ((window as any)._progressChartsAnimated) return;
+    
     // Only animate if the chart container exists
     if (!chartRef.current) return;
+    
+    // Mark that we're animating this component
+    (window as any)._progressChartsAnimated = true;
 
     // Animation timeline for better control and sequencing
-    const tl = gsap.timeline();
+    const tl = gsap.timeline({
+      onComplete: () => {
+        console.log('Progress charts animation complete');
+      }
+    });
     
     // Animate the chart container
     tl.fromTo(
@@ -95,42 +105,56 @@ const ProgressCharts = ({ workouts = [], meals = [] }: ProgressChartsProps) => {
         opacity: 1,
         y: 0,
         duration: 0.8,
-        ease: "power3.out"
+        ease: "power3.out",
+        clearProps: "all" // Clear props after animation to prevent conflicts
       }
     );
 
-    // Check if chart elements exist before animating them
-    const chartSurfaces = document.querySelectorAll(".recharts-surface");
-    if (chartSurfaces.length > 0) {
-      tl.fromTo(
-        chartSurfaces,
-        { opacity: 0, scale: 0.9 },
-        { 
-          opacity: 1,
-          scale: 1,
-          duration: 1,
-          ease: "elastic.out(1, 0.8)",
-          stagger: 0.2
-        },
-        "-=0.4" // Overlap with previous animation
-      );
-    }
+    // Wait a bit for charts to render properly
+    setTimeout(() => {
+      // Check if chart elements exist before animating them
+      const chartSurfaces = document.querySelectorAll(".recharts-surface");
+      if (chartSurfaces.length > 0) {
+        tl.fromTo(
+          chartSurfaces,
+          { opacity: 0, scale: 0.9 },
+          { 
+            opacity: 1,
+            scale: 1,
+            duration: 1,
+            ease: "elastic.out(1, 0.8)",
+            stagger: 0.2,
+            clearProps: "all" // Clear props after animation to prevent conflicts
+          },
+          "-=0.4" // Overlap with previous animation
+        );
+      }
 
-    // Check if chart layers exist before animating them
-    const chartLayers = document.querySelectorAll(".recharts-layer");
-    if (chartLayers.length > 0) {
-      tl.fromTo(
-        chartLayers,
-        { opacity: 0 },
-        { 
-          opacity: 1,
-          duration: 1.5,
-          stagger: 0.05,
-          ease: "power2.inOut"
-        },
-        "-=0.7" // Overlap with previous animation
-      );
-    }
+      // Check if chart layers exist before animating them
+      const chartLayers = document.querySelectorAll(".recharts-layer");
+      if (chartLayers.length > 0) {
+        tl.fromTo(
+          chartLayers,
+          { opacity: 0 },
+          { 
+            opacity: 1,
+            duration: 1.5,
+            stagger: 0.05,
+            ease: "power2.inOut",
+            clearProps: "all" // Clear props after animation to prevent conflicts
+          },
+          "-=0.7" // Overlap with previous animation
+        );
+      }
+    }, 100);
+    
+    // Cleanup function
+    return () => {
+      // Set a delay before allowing animations to run again
+      setTimeout(() => {
+        (window as any)._progressChartsAnimated = false;
+      }, 300);
+    };
   }, [workouts, meals]);
 
   const workoutData = processWorkoutData();
@@ -145,6 +169,15 @@ const ProgressCharts = ({ workouts = [], meals = [] }: ProgressChartsProps) => {
   ] : []; // In a real app, you'd process real strength data here
 
   const handleTabChange = (tab: string) => {
+    // Create a unique key for this specific tab animation
+    const tabAnimKey = `_tabAnimated_${tab}`;
+    
+    // Only run animation if we haven't animated this tab recently
+    if ((window as any)[tabAnimKey]) return;
+    
+    // Mark this tab as recently animated
+    (window as any)[tabAnimKey] = true;
+    
     // Wait a small amount of time for the tab content to be visible in the DOM
     setTimeout(() => {
       // Check if the elements exist before animating
@@ -157,10 +190,16 @@ const ProgressCharts = ({ workouts = [], meals = [] }: ProgressChartsProps) => {
             opacity: 1,
             scale: 1,
             duration: 0.5,
-            ease: "back.out(1.7)"
+            ease: "back.out(1.7)",
+            clearProps: "all" // Clear props after animation
           }
         );
       }
+      
+      // Reset the animation flag after a delay
+      setTimeout(() => {
+        (window as any)[tabAnimKey] = false;
+      }, 300);
     }, 100); // Small delay to ensure DOM elements are ready
   };
 

@@ -14,7 +14,7 @@ Received string:  "Vite + React + TS"
 Call log:
   - expect.toHaveTitle with timeout 5000ms
   - waiting for locator(':root')
-    8 × locator resolved to <html lang="en">…</html>
+    9 × locator resolved to <html lang="en">…</html>
       - unexpected value "Vite + React + TS"
 
     at /Users/tbmi/Documents/GitHub/tempo-workout-tracker/tests/playwright/home.test.ts:7:22
@@ -23,71 +23,20 @@ Call log:
 # Page snapshot
 
 ```yaml
-- banner:
-  - heading "Tempo" [level=1]
-  - button "Login / Register":
-    - img
-    - text: Login / Register
-  - button "Add Workout":
-    - img
-    - text: Add Workout
-  - button "Log Meal":
-    - img
-    - text: Log Meal
-- tablist:
-  - tab "Dashboard" [selected]:
-    - img
-    - text: Dashboard
-  - tab "Workouts":
-    - img
-    - text: Workouts
-  - tab "Meals":
-    - img
-    - text: Meals
-- tabpanel "Dashboard":
-  - heading "Today's Summary" [level=2]
-  - heading "Workouts" [level=3]
-  - paragraph: Today's sessions
-  - img
-  - text: "0"
-  - paragraph: No workouts today
-  - heading "Active Minutes" [level=3]
-  - paragraph: Total workout time
-  - img
-  - text: "0"
-  - paragraph: No active minutes today
-  - heading "Meals Logged" [level=3]
-  - paragraph: Today's nutrition
-  - img
-  - text: "0"
-  - paragraph: No meals logged today
-  - heading "Calories" [level=3]
-  - paragraph: Today's intake
-  - img
-  - text: "0"
-  - paragraph: No calories tracked today
-  - heading "Your Progress" [level=2]
-  - heading "Fitness Progress" [level=3]
-  - paragraph: Track your fitness journey over time
-  - tablist:
-    - tab "Activity" [selected]
-    - tab "Nutrition"
-    - tab "Strength"
-  - tabpanel "Activity":
-    - img: Fri Sat Sun Mon Tue Wed Thu 0 1 2 3 4 0 1 2 3 4
-    - list:
-      - listitem:
-        - img
-        - text: Minutes
-      - listitem:
-        - img
-        - text: Sessions
+- text: Tempo Workout Tracker
+- heading "Log In" [level=3]
+- paragraph: Sign in to access your workout tracker
+- text: Email
+- textbox "Email"
+- text: Password
+- textbox "Password"
+- button "Sign In"
+- button "Forgot password?"
+- text: Don't have an account?
+- button "Sign up"
+- text: © 2025 Tempo Workout Tracker. All rights reserved.
 - region "Notifications (F8)":
-  - list:
-    - status:
-      - text: Error loading data Could not load your data. Please try again later.
-      - button:
-        - img
+  - list
 ```
 
 # Test source

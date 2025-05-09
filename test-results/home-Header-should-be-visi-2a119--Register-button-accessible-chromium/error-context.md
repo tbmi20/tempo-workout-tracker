@@ -1,93 +1,40 @@
 # Test info
 
-- Name: Home page should load and show the correct title
-- Location: /Users/tbmi/Documents/GitHub/tempo-workout-tracker/tests/playwright/home.test.ts:3:1
+- Name: Header should be visible and Login/Register button accessible
+- Location: /Users/tbmi/Documents/GitHub/tempo-workout-tracker/tests/playwright/home.test.ts:63:1
 
 # Error details
 
 ```
-Error: Timed out 5000ms waiting for expect(locator).toHaveTitle(expected)
+Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
 
-Locator: locator(':root')
-Expected pattern: /Tempo Workout Tracker/
-Received string:  "Vite + React + TS"
+Locator: locator('header')
+Expected: visible
+Received: <element(s) not found>
 Call log:
-  - expect.toHaveTitle with timeout 5000ms
-  - waiting for locator(':root')
-    9 × locator resolved to <html lang="en">…</html>
-      - unexpected value "Vite + React + TS"
+  - expect.toBeVisible with timeout 5000ms
+  - waiting for locator('header')
 
-    at /Users/tbmi/Documents/GitHub/tempo-workout-tracker/tests/playwright/home.test.ts:7:22
+    at /Users/tbmi/Documents/GitHub/tempo-workout-tracker/tests/playwright/home.test.ts:71:24
 ```
 
 # Page snapshot
 
 ```yaml
-- banner:
-  - heading "Tempo" [level=1]
-  - button "Login / Register":
-    - img
-    - text: Login / Register
-  - button "Add Workout":
-    - img
-    - text: Add Workout
-  - button "Log Meal":
-    - img
-    - text: Log Meal
-- tablist:
-  - tab "Dashboard" [selected]:
-    - img
-    - text: Dashboard
-  - tab "Workouts":
-    - img
-    - text: Workouts
-  - tab "Meals":
-    - img
-    - text: Meals
-- tabpanel "Dashboard":
-  - heading "Today's Summary" [level=2]
-  - heading "Workouts" [level=3]
-  - paragraph: Today's sessions
-  - img
-  - text: "0"
-  - paragraph: No workouts today
-  - heading "Active Minutes" [level=3]
-  - paragraph: Total workout time
-  - img
-  - text: "0"
-  - paragraph: No active minutes today
-  - heading "Meals Logged" [level=3]
-  - paragraph: Today's nutrition
-  - img
-  - text: "0"
-  - paragraph: No meals logged today
-  - heading "Calories" [level=3]
-  - paragraph: Today's intake
-  - img
-  - text: "0"
-  - paragraph: No calories tracked today
-  - heading "Your Progress" [level=2]
-  - heading "Fitness Progress" [level=3]
-  - paragraph: Track your fitness journey over time
-  - tablist:
-    - tab "Activity" [selected]
-    - tab "Nutrition"
-    - tab "Strength"
-  - tabpanel "Activity":
-    - img: FriSatSunMonTueWedThu0123401234
-    - list:
-      - listitem:
-        - img
-        - text: Minutes
-      - listitem:
-        - img
-        - text: Sessions
+- text: Tempo Workout Tracker
+- heading "Log In" [level=3]
+- paragraph: Sign in to access your workout tracker
+- text: Email
+- textbox "Email"
+- text: Password
+- textbox "Password"
+- button "Sign In"
+- button "Forgot password?"
+- text: Don't have an account?
+- button "Sign up"
+- text: © 2025 Tempo Workout Tracker. All rights reserved.
 - region "Notifications (F8)":
-  - list:
-    - status:
-      - text: Error loading data Could not load your data. Please try again later.
-      - button:
-        - img
+  - list
 ```
 
 # Test source
@@ -99,8 +46,7 @@ Call log:
    4 |   await page.goto('/');
    5 |   
    6 |   // Check if the page has loaded correctly
->  7 |   await expect(page).toHaveTitle(/Tempo Workout Tracker/);
-     |                      ^ Error: Timed out 5000ms waiting for expect(locator).toHaveTitle(expected)
+   7 |   await expect(page).toHaveTitle(/Tempo Workout Tracker/);
    8 |   
    9 |   // Check if the main elements are visible
   10 |   await expect(page.locator('h1:has-text("Tempo")')).toBeVisible();
@@ -164,7 +110,8 @@ Call log:
   68 |   
   69 |   // Check if the header is visible
   70 |   const header = page.locator('header');
-  71 |   await expect(header).toBeVisible();
+> 71 |   await expect(header).toBeVisible();
+     |                        ^ Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
   72 |   
   73 |   // Get header bounding box to check position
   74 |   const headerBox = await header.boundingBox();

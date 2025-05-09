@@ -1,63 +1,35 @@
 # Test info
 
-- Name: Should be able to view workout form
-- Location: /Users/tbmi/Documents/GitHub/tempo-workout-tracker/tests/playwright/home.test.ts:27:1
+- Name: Tab navigation should work correctly
+- Location: /Users/tbmi/Documents/GitHub/tempo-workout-tracker/tests/playwright/home.test.ts:13:1
 
 # Error details
 
 ```
-Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
+Error: expect(received).toBeGreaterThan(expected)
 
-Locator: locator('form')
-Expected: visible
-Received: <element(s) not found>
-Call log:
-  - expect.toBeVisible with timeout 5000ms
-  - waiting for locator('form')
-
-    at /Users/tbmi/Documents/GitHub/tempo-workout-tracker/tests/playwright/home.test.ts:37:40
+Expected: > 0
+Received:   0
+    at /Users/tbmi/Documents/GitHub/tempo-workout-tracker/tests/playwright/home.test.ts:18:30
 ```
 
 # Page snapshot
 
 ```yaml
+- text: Tempo Workout Tracker
+- heading "Log In" [level=3]
+- paragraph: Sign in to access your workout tracker
+- text: Email
+- textbox "Email"
+- text: Password
+- textbox "Password"
+- button "Sign In"
+- button "Forgot password?"
+- text: Don't have an account?
+- button "Sign up"
+- text: © 2025 Tempo Workout Tracker. All rights reserved.
 - region "Notifications (F8)":
   - list
-- dialog "Log Workout":
-  - heading "Log Workout" [level=2]
-  - text: Workout Name
-  - textbox "Workout Name": New Workout
-  - text: Workout Date
-  - textbox "Workout Date": 2025-05-08
-  - heading "Exercises" [level=3]
-  - button "Add Exercise":
-    - img
-    - text: Add Exercise
-  - text: Exercise
-  - combobox "Exercise": Bench Press
-  - text: Sets
-  - spinbutton "Sets": "3"
-  - text: Reps
-  - spinbutton "Reps": "10"
-  - text: Weight
-  - spinbutton "Weight": "135"
-  - button:
-    - img
-  - text: Exercise
-  - combobox "Exercise": Squats
-  - text: Sets
-  - spinbutton "Sets": "4"
-  - text: Reps
-  - spinbutton "Reps": "8"
-  - text: Weight
-  - spinbutton "Weight": "185"
-  - button:
-    - img
-  - button "Cancel"
-  - button "Save Workout"
-  - button "Close":
-    - img
-    - text: Close
 ```
 
 # Test source
@@ -80,7 +52,8 @@ Call log:
   15 |   
   16 |   // Check tabs instead of navigation items
   17 |   const tabs = page.locator('button[role="tab"]');
-  18 |   expect(await tabs.count()).toBeGreaterThan(0);
+> 18 |   expect(await tabs.count()).toBeGreaterThan(0);
+     |                              ^ Error: expect(received).toBeGreaterThan(expected)
   19 |   
   20 |   // Test tab switching
   21 |   const workoutsTab = page.locator('button[role="tab"]:has-text("Workouts")');
@@ -99,8 +72,7 @@ Call log:
   34 |     await addWorkoutButton.click();
   35 |     
   36 |     // Check if the form appeared
-> 37 |     await expect(page.locator('form')).toBeVisible();
-     |                                        ^ Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
+  37 |     await expect(page.locator('form')).toBeVisible();
   38 |   } else {
   39 |     console.log('Add Workout button not found, skipping test');
   40 |     test.skip();

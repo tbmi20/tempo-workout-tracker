@@ -1,67 +1,40 @@
 # Test info
 
-- Name: Should be able to view meal form
-- Location: /Users/tbmi/Documents/GitHub/tempo-workout-tracker/tests/playwright/home.test.ts:45:1
+- Name: Header should be visible and Login/Register button accessible
+- Location: /Users/tbmi/Documents/GitHub/tempo-workout-tracker/tests/playwright/home.test.ts:63:1
 
 # Error details
 
 ```
 Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
 
-Locator: locator('form')
+Locator: locator('header')
 Expected: visible
 Received: <element(s) not found>
 Call log:
   - expect.toBeVisible with timeout 5000ms
-  - waiting for locator('form')
+  - waiting for locator('header')
 
-    at /Users/tbmi/Documents/GitHub/tempo-workout-tracker/tests/playwright/home.test.ts:55:40
+    at /Users/tbmi/Documents/GitHub/tempo-workout-tracker/tests/playwright/home.test.ts:71:24
 ```
 
 # Page snapshot
 
 ```yaml
+- text: Tempo Workout Tracker
+- heading "Log In" [level=3]
+- paragraph: Sign in to access your workout tracker
+- text: Email
+- textbox "Email"
+- text: Password
+- textbox "Password"
+- button "Sign In"
+- button "Forgot password?"
+- text: Don't have an account?
+- button "Sign up"
+- text: © 2025 Tempo Workout Tracker. All rights reserved.
 - region "Notifications (F8)":
   - list
-- dialog "Log a Meal":
-  - heading "Log a Meal" [level=2]
-  - text: Meal Name (optional)
-  - textbox "Meal Name (optional)"
-  - text: Meal Type
-  - combobox "Meal Type": Breakfast
-  - text: Time
-  - textbox "Time": 8:50 PM
-  - text: Food Items
-  - button "Add Item":
-    - img
-    - text: Add Item
-  - text: Food Name
-  - textbox "Food Name"
-  - text: Calories
-  - spinbutton "Calories": "0"
-  - text: Protein
-  - spinbutton "Protein": "0"
-  - text: Carbs
-  - spinbutton "Carbs": "0"
-  - text: Fat
-  - spinbutton "Fat": "0"
-  - button [disabled]:
-    - img
-  - text: Notes (optional)
-  - textbox "Notes (optional)"
-  - paragraph: Calories
-  - paragraph: "0"
-  - paragraph: Protein
-  - paragraph: 0g
-  - paragraph: Carbs
-  - paragraph: 0g
-  - paragraph: Fat
-  - paragraph: 0g
-  - button "Cancel"
-  - button "Save"
-  - button "Close":
-    - img
-    - text: Close
 ```
 
 # Test source
@@ -121,8 +94,7 @@ Call log:
   52 |     await addMealButton.click();
   53 |     
   54 |     // Check if the form appeared
-> 55 |     await expect(page.locator('form')).toBeVisible();
-     |                                        ^ Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
+  55 |     await expect(page.locator('form')).toBeVisible();
   56 |   } else {
   57 |     console.log('Add Meal button not found, skipping test');
   58 |     test.skip();
@@ -138,7 +110,8 @@ Call log:
   68 |   
   69 |   // Check if the header is visible
   70 |   const header = page.locator('header');
-  71 |   await expect(header).toBeVisible();
+> 71 |   await expect(header).toBeVisible();
+     |                        ^ Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
   72 |   
   73 |   // Get header bounding box to check position
   74 |   const headerBox = await header.boundingBox();
